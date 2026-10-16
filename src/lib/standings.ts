@@ -53,9 +53,13 @@ export function formatPoints(points: number): string {
   return new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2 }).format(points)
 }
 
-/** Position to show in the table; "SQ" for drivers excluded from the championship. */
+/**
+ * Position to show in the table; "SQ" for drivers excluded from the championship,
+ * "NC" for those listed without a position (positionText "-", e.g. Senna 1994).
+ */
 export function positionLabel(standing: Standing): string {
   if (standing.positionText === 'D') return 'SQ'
+  if (standing.positionText === '-' && !standing.position) return 'NC'
   return standing.position ?? (standing.positionText || '—')
 }
 
