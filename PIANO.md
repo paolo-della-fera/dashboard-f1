@@ -7,7 +7,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 1 – Livello dati (client API)
 - [x] Fase 2 – Calendario
 - [x] Fase 3 – Classifiche
-- [ ] Fase 4 – Risultati
+- [x] Fase 4 – Risultati
 - [ ] Fase 5 – Testa a testa: dati e statistiche
 - [ ] Fase 6 – Testa a testa: interfaccia e grafici
 - [ ] Fase 6b – Animazioni
@@ -83,6 +83,13 @@ La fase più importante: tutto il resto si appoggia qui.
 
 **Fatto quando:** funziona per gare recenti, gare con sprint e gare anni '50 con dati parziali, senza errori.
 
+**Come funziona (riepilogo):**
+- *Rotte*: `/risultati/:season/:round` con `?sessione=qualifiche|sprint` (default gara). `/risultati` (anche `?stagione=AAAA`, usato dal selettore stagione) reindirizza all'ultimo GP concluso; prima della prima gara della stagione corrente, all'ultimo della stagione precedente (`src/pages/LatestResultsRedirect.tsx`).
+- *Pagina*: intestazione dal calendario (visibile anche senza risultati); tab Sprint solo se il calendario ha `Sprint`; ogni sessione si scarica solo all'apertura del suo tab (hook in `src/hooks/useResults.ts`). GP futuri: nessuna richiesta di risultati. Parametri non validi o round fuori calendario: "Gran Premio non trovato", nessuna richiesta. Navigazione precedente/successivo entro la stagione (successivo solo se già corso), mantiene la sessione; selettori stagione + GP (solo GP conclusi).
+- *Logica* (`src/lib/results.ts`): distacco in giri calcolato da `laps` rispetto al vincitore (nei dati recenti i doppiati hanno `status` "Lapped" e un `Time` fuorviante, es. "+4.659"); stati tradotti in italiano per i casi comuni, quelli rari restano come da API. `grid` "0" = "Box", tranne per chi non è partito (W/F, che hanno anch'essi griglia 0). Codici di posizione: Rit., SQ, Escl., NP, NQ, NC, con legenda sotto la tabella. Colonna giro veloce nascosta se nessun pilota ce l'ha (dati dal 2004); il più veloce in viola. Qualifiche: solo le colonne Q1–Q3 con dati (stringhe vuote ignorate, es. 2005), "Tempo" se c'è una sola sessione; se mancano (prima del 1994) messaggio che rimanda alla colonna Griglia.
+- *Anni '50*: con le guide condivise lo stesso pilota può comparire più volte nella stessa gara, quindi le righe usano indice + driverId come chiave.
+- *Costo*: 1 richiesta per sessione aperta (+ calendario, di solito già in cache).
+
 ## Fase 5 – Testa a testa: dati e statistiche
 Solo logica e test, niente interfaccia.
 - Funzioni pure in `src/lib/headToHead.ts`, per ciascun pilota:
@@ -124,6 +131,7 @@ Solo logica e test, niente interfaccia.
 - Layout responsive (telefono e desktop)
 - Controllo delle animazioni (Fase 6b) su telefono
 - Calendario: su telefono nascondere le colonne circuito e paese (o trasformare le righe in card)
+- Risultati: su telefono (360px) nascondere nella tabella gara/sprint le colonne giro veloce e +/− (Fase 4: 8 colonne, ora scorre in orizzontale)
 - Tema scuro
 - Revisione accessibilità: contrasto, navigazione da tastiera, etichette dei grafici
 - Pagina 404 e gestione errori globale

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npx vitest run *)",
+      "Bash(npx vitest run *)"
+    ]
+  }
+}

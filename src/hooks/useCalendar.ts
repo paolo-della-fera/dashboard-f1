@@ -3,10 +3,11 @@ import { getSchedule } from '../api/index.ts'
 import { seasonStaleTime } from './queryClient.ts'
 
 /** Races of a season (numeric year, so the current season has a single cache key). */
-export function useCalendar(season: number) {
+export function useCalendar(season: number, enabled = true) {
   return useQuery({
     queryKey: ['schedule', season],
     queryFn: () => getSchedule(season),
     staleTime: seasonStaleTime(season, new Date().getFullYear()),
+    enabled,
   })
 }

@@ -1,0 +1,36 @@
+import { Link } from 'react-router-dom'
+import { resultsPath } from '../lib/results.ts'
+import type { Race } from '../types/jolpica.ts'
+
+interface RaceNavigationProps {
+  previous: Race | null
+  next: Race | null
+  search: string
+}
+
+const linkClass = 'rounded border border-gray-300 px-3 py-1.5 text-sm hover:border-red-700 hover:text-red-700'
+
+/** Links to the previous and next Grand Prix of the season, keeping the selected session. */
+export default function RaceNavigation({ previous, next, search }: RaceNavigationProps) {
+  if (!previous && !next) return null
+  return (
+    <nav aria-label="Gran Premi vicini" className="mt-6 flex flex-wrap justify-between gap-2">
+      {previous ? (
+        <Link to={resultsPath(previous) + search} className={linkClass} rel="prev">
+          <span aria-hidden="true">← </span>
+          <span className="sr-only">GP precedente: </span>
+          {previous.raceName}
+        </Link>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <Link to={resultsPath(next) + search} className={linkClass} rel="next">
+          <span className="sr-only">GP successivo: </span>
+          {next.raceName}
+          <span aria-hidden="true"> →</span>
+        </Link>
+      )}
+    </nav>
+  )
+}
