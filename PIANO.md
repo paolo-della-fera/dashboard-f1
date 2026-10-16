@@ -115,6 +115,7 @@ Solo logica e test, niente interfaccia.
 ## Fase 7 – Rifinitura e pubblicazione
 - Layout responsive (telefono e desktop)
 - Controllo delle animazioni (Fase 6b) su telefono
+- Calendario: su telefono nascondere le colonne circuito e paese (o trasformare le righe in card)
 - Tema scuro
 - Revisione accessibilità: contrasto, navigazione da tastiera, etichette dei grafici
 - Pagina 404 e gestione errori globale
