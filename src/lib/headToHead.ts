@@ -1,7 +1,7 @@
 import type { Constructor, DriverStanding, QualifyingResult, Race, Result, StandingsList } from '../types/jolpica.ts'
 import { raceStatus } from './calendar.ts'
 import { isClassified } from './results.ts'
-import { parsePoints } from './standings.ts'
+import { parsePoints, positionLabel } from './standings.ts'
 
 /** Fastest laps are recorded only from this season. */
 export const FIRST_FASTEST_LAP_SEASON = 2004
@@ -199,14 +199,6 @@ function standingsBySeason(career: DriverCareer) {
   return new Map(career.standings.map((list) => [Number(list.season), driverStanding(list)]))
 }
 
-/** Championship position: "SQ" when excluded (Schumacher 1997), "NC" when listed without a position, "—" when absent. */
-function championshipLabel(standing: DriverStanding | null | undefined): string {
-  if (!standing) return '—'
-  if (standing.positionText === 'D') return 'SQ'
-  if (standing.position && /^\d+$/.test(standing.positionText)) return standing.position
-  return 'NC'
-}
-
 function championshipPosition(list: StandingsList): number | null {
   const standing = driverStanding(list)
   if (!standing?.position || !/^\d+$/.test(standing.positionText)) return null
@@ -269,7 +261,7 @@ function seasonStats(starts: Start[], career: DriverCareer, lastConcluded: numbe
       wins: inSeason.filter(isWin).length,
       podiums: inSeason.filter(isPodium).length,
       poles: inSeason.filter(isPole).length,
-      position: championshipLabel(standing),
+      position: positionLabel(standing),
       points: standing ? parsePoints(standing.points) : null,
       provisional: season > lastConcluded,
     }
@@ -355,7 +347,7 @@ function sharedTeams(race: SharedRace): Constructor[] {
 
 function seasonResult(standing: DriverStanding | null | undefined) {
   return {
-    position: championshipLabel(standing),
+    position: positionLabel(standing),
     points: standing ? parsePoints(standing.points) : null,
   }
 }

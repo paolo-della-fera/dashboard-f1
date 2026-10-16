@@ -1,11 +1,16 @@
+import { lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout.tsx'
-import CalendarPage from './pages/CalendarPage.tsx'
-import StandingsPage from './pages/StandingsPage.tsx'
 import LatestResultsRedirect from './pages/LatestResultsRedirect.tsx'
-import ResultsPage from './pages/ResultsPage.tsx'
-import HeadToHeadPage from './pages/HeadToHeadPage.tsx'
-import DevDataPage from './pages/DevDataPage.tsx'
+import NotFoundPage from './pages/NotFoundPage.tsx'
+
+// Pages are split into their own chunks (Recharts only loads with the pages that chart).
+const CalendarPage = lazy(() => import('./pages/CalendarPage.tsx'))
+const StandingsPage = lazy(() => import('./pages/StandingsPage.tsx'))
+const ResultsPage = lazy(() => import('./pages/ResultsPage.tsx'))
+const HeadToHeadPage = lazy(() => import('./pages/HeadToHeadPage.tsx'))
+// Development only: in production the condition is `false` and the chunk is never built.
+const DevDataPage = import.meta.env.DEV ? lazy(() => import('./pages/DevDataPage.tsx')) : null
 
 export default function App() {
   return (
@@ -17,7 +22,8 @@ export default function App() {
         <Route path="risultati" element={<LatestResultsRedirect />} />
         <Route path="risultati/:season/:round" element={<ResultsPage />} />
         <Route path="testa-a-testa" element={<HeadToHeadPage />} />
-        <Route path="dev/dati" element={<DevDataPage />} />
+        {DevDataPage && <Route path="dev/dati" element={<DevDataPage />} />}
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )

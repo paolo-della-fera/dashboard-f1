@@ -12,7 +12,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 6 – Testa a testa: interfaccia e grafici
 - [x] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
-  - [ ] 7a – Pulizia del codice e robustezza
+  - [x] 7a – Pulizia del codice e robustezza
   - [ ] 7b – Responsive
   - [ ] 7c – Tema scuro e accessibilità
   - [ ] 7d – Revisione finale e pubblicazione
@@ -46,7 +46,7 @@ La fase più importante: tutto il resto si appoggia qui.
 - *Errori* (`src/api/client.ts`): 429, 5xx ed errori di rete vengono ritentati fino a 3 volte (1 s, 2 s, 4 s oppure il `Retry-After` del server, se ≤10 s); gli altri errori (es. 404) falliscono subito.
 - *Pagine*: prima pagina con `limit=100`, poi tutte le altre fino a `total`; le gare spezzate tra due pagine vengono riunite (`src/api/paginate.ts`).
 - *Cache* (`src/api/cache.ts`, IndexedDB con ripiego in memoria): stagioni concluse senza scadenza; stagione in corso 6 h, ma 30 min se la risposta è vuota; dati per pilota 24 h. Chiavi con prefisso `v1:`.
-- *Funzioni pubbliche*: `src/api/index.ts`. Pagina di prova nascosta: `/dev/dati`.
+- *Funzioni pubbliche*: `src/api/index.ts`. Pagina di prova `/dev/dati`, solo con `npm run dev` (Fase 7a).
 - Nota: Jolpica non accetta `drivers/{id}/driverStandings/` senza stagione, quindi `getDriverSeasonStandings` legge prima `drivers/{id}/seasons/` e poi la classifica completa di ogni stagione (`{stagione}/driverStandings/`, la stessa voce di cache di `getDriverStandings`), tenendo la riga del pilota: le stagioni sono condivise tra piloti e con la pagina Classifiche (in cache per sempre per le stagioni concluse). Il `round` delle `StandingsList` restituite è vuoto (la cache della classifica tiene solo le righe); `headToHead.ts` non lo usa.
 
 ## Fase 2 – Calendario
@@ -199,6 +199,15 @@ Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell
 - Limiti Jolpica per IP, destinati a diminuire: ridurre le richieste invece di rallentare la coda. Fatto: classifiche stagione per stagione del pilota lette dalla classifica completa della stagione, condivisa tra piloti e con Classifiche (es. Senna–Prost: 1984–1993 scaricate una volta sola). Da valutare: ricavare le stagioni di un pilota da `getDriverResults` invece di `drivers/{id}/seasons/` (una richiesta in meno per pilota, ma in sequenza).
 
 **Fatto quando:** `/dev/dati` non è raggiungibile in produzione; un URL inesistente mostra la 404; un errore di rendering mostra un messaggio invece della pagina bianca; `npm run build` senza avviso sui 500 kB (o con motivazione scritta qui); test e lint passano.
+
+**Come funziona (riepilogo):**
+- *Caricamento separato* (`src/App.tsx`): le quattro pagine con `lazy(() => import(...))`; `LatestResultsRedirect` e `NotFoundPage` restano nel bundle principale. In `Layout`: `ErrorBoundary > Suspense > PageTransition > Outlet`. `Suspense` sta fuori dalla transizione, così la dissolvenza parte quando la pagina è arrivata e non sul messaggio "Caricamento…".
+- *Build* (prima un solo file da 878 kB): chunk più grande 366 kB (Recharts, che Vite chiama `chartColors-*` dal primo modulo del gruppo), principale 221 kB, `calendar-*` 222 kB (codice condiviso tra le pagine, Motion compreso), pagine 5–49 kB. Nessun avviso, `manualChunks` non serve.
+- *`/dev/dati`*: rotta e import solo se `import.meta.env.DEV`. In produzione la condizione vale `false`, il chunk non viene creato (verificato con grep su `dist/`) e l'indirizzo apre la 404.
+- *404* (`src/pages/NotFoundPage.tsx`): rotta `*` dentro `Layout`, con la navigazione visibile e un link al calendario.
+- *Errori* (`src/components/ErrorBoundary.tsx`): è un componente a classe, unica eccezione alla regola, perché React non ha un hook per gli error boundary. Mostra un messaggio con "Ricarica la pagina" e un link al calendario, e copre anche un chunk che non si scarica dopo un nuovo deploy. In `Layout` `resetKey` = percorso: dopo un errore basta cambiare pagina. Un secondo boundary in `main.tsx` copre gli errori del layout.
+- *Posizione in campionato*: una sola `positionLabel` in `src/lib/standings.ts`, usata dalle classifiche e da `headToHead.ts` (`championshipLabel` eliminata). Restituisce "—" senza riga o senza posizione, "SQ" per "D", la posizione se `positionText` è numerico, altrimenti "NC".
+- *Stagioni del pilota da `getDriverResults`*: **non fatto**. Si risparmierebbe una sola richiesta per pilota, già in cache per 24 h, ma le classifiche per stagione dovrebbero aspettare tutte le pagine dei risultati invece di partire in parallelo.
 
 ### 7b – Responsive
 - Layout responsive (telefono da 360px e desktop), compresa la barra di navigazione

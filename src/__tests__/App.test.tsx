@@ -25,9 +25,9 @@ describe('App', () => {
     }
   })
 
-  it('redirects the root path to the calendar', () => {
+  it('redirects the root path to the calendar', async () => {
     renderApp('/')
-    expect(screen.getByRole('heading', { level: 1, name: 'Calendario' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Calendario' })).toBeInTheDocument()
   })
 
   it('navigates between sections', async () => {
@@ -35,9 +35,26 @@ describe('App', () => {
     renderApp()
 
     await user.click(screen.getByRole('link', { name: 'Classifiche' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Classifiche' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Classifiche' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'Testa a testa' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Testa a testa' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Testa a testa' })).toBeInTheDocument()
+  })
+
+  it('shows the 404 page for an unknown address, keeping the navigation', async () => {
+    const user = userEvent.setup()
+    renderApp('/pagina-che-non-esiste')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Pagina non trovata' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Navigazione principale' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'Vai al calendario' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Calendario' })).toBeInTheDocument()
+  })
+
+  it('serves the raw data page in development', async () => {
+    renderApp('/dev/dati')
+    expect(screen.queryByRole('heading', { name: 'Pagina non trovata' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 })

@@ -72,6 +72,12 @@ describe('standing helpers', () => {
     expect(positionLabel(driver('senna', '0', { position: undefined, positionText: '-' }))).toBe('NC')
   })
 
+  it('shows "—" without a standing and the position of constructors', () => {
+    expect(positionLabel(null)).toBe('—')
+    expect(positionLabel(undefined)).toBe('—')
+    expect(positionLabel(constructor('ferrari', '10'))).toBe('1')
+  })
+
   it('joins the teams of a driver who changed team', () => {
     const standing = driver('a', '0', {
       Constructors: [

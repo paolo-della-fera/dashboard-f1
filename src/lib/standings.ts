@@ -54,13 +54,16 @@ export function formatPoints(points: number): string {
 }
 
 /**
- * Position to show in the table; "SQ" for drivers excluded from the championship,
- * "NC" for those listed without a position (positionText "-", e.g. Senna 1994).
+ * Championship position to show: "SQ" when excluded (Schumacher 1997), "NC"
+ * when listed without a position (positionText "-", e.g. Senna 1994), "—" when
+ * there is no standing or no position at all.
  */
-export function positionLabel(standing: Standing): string {
+export function positionLabel(standing: Standing | null | undefined): string {
+  if (!standing) return '—'
   if (standing.positionText === 'D') return 'SQ'
-  if (standing.positionText === '-' && !standing.position) return 'NC'
-  return standing.position ?? (standing.positionText || '—')
+  if (/^\d+$/.test(standing.positionText)) return standing.position ?? standing.positionText
+  if (!standing.positionText && !standing.position) return '—'
+  return 'NC'
 }
 
 export function driverTeams(standing: DriverStanding): string {
