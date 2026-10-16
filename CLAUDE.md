@@ -51,6 +51,7 @@ src/
 - Test in `__tests__` accanto al file testato; nei test l'API va sempre simulata (mock), mai chiamata davvero
 - Testi dell'interfaccia in italiano; codice, nomi di variabili e commenti in inglese
 - Ogni pagina gestisce tre stati: caricamento, errore, dati
+- Le pagine devono funzionare anche su telefono (da 360px di larghezza); il controllo completo del responsive si fa nella Fase 7.
 
 ## Regole importanti
 - Non installare nuove dipendenze senza chiedermelo

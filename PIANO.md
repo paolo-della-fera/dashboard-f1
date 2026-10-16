@@ -10,6 +10,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [ ] Fase 4 – Risultati
 - [ ] Fase 5 – Testa a testa: dati e statistiche
 - [ ] Fase 6 – Testa a testa: interfaccia e grafici
+- [ ] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
 
 ---
@@ -99,8 +100,21 @@ Solo logica e test, niente interfaccia.
 
 **Fatto quando:** il confronto funziona per due contemporanei (Hamilton–Verstappen), due di epoche diverse (Fangio–Schumacher) e due ex compagni (Senna–Prost).
 
+## Fase 6b – Animazioni
+- Libreria: Motion (installazione autorizzata in questa fase)
+- Transizioni morbide tra le pagine
+- Card e righe delle tabelle che compaiono in sequenza al caricamento
+- Numeri delle statistiche (testa a testa, classifiche) che contano fino al valore finale
+- Effetti al passaggio del mouse su card e link
+- Animazione di ingresso dei grafici Recharts, coerente con il resto
+- Rispetto dell'impostazione "riduci movimento" del sistema: animazioni disattivate o ridotte al minimo
+- Durate brevi (indicativamente sotto i 400 ms), niente animazioni che rallentano la lettura dei dati
+
+**Fatto quando:** tutte le pagine hanno animazioni coerenti, con "riduci movimento" attivo non si muove nulla di superfluo, test e lint passano.
+
 ## Fase 7 – Rifinitura e pubblicazione
 - Layout responsive (telefono e desktop)
+- Controllo delle animazioni (Fase 6b) su telefono
 - Tema scuro
 - Revisione accessibilità: contrasto, navigazione da tastiera, etichette dei grafici
 - Pagina 404 e gestione errori globale
