@@ -124,6 +124,11 @@ Solo logica e test, niente interfaccia.
 
 - Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
 
+### Prima di rendere pubblico il repository
+- README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"
+- File LICENSE (MIT)
+- Controllo che non ci siano dati personali o segreti nel codice e nella cronologia
+
 **Fatto quando:** l'app è online e utilizzabile da telefono.
 
 ---
