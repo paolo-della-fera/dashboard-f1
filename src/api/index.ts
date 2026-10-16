@@ -40,9 +40,9 @@ export function createJolpicaApi(client: JolpicaClient) {
     })
   }
 
-  function latestDriverStandings(season: Season, path: string): Promise<DriverStanding[]> {
+  function latestDriverStandings(season: Season, path: string, progress?: ProgressTracker): Promise<DriverStanding[]> {
     return client.cached(path, seasonTtl(season), async () => {
-      const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+      const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists, progress)
       return lists.at(-1)?.DriverStandings ?? []
     })
   }
@@ -125,9 +125,11 @@ export function createJolpicaApi(client: JolpicaClient) {
     /**
      * Championship standing of the driver for each season raced (final, or
      * latest for the current season). Jolpica needs a season for driver
-     * standings, so this fetches the driver's seasons and then one standing
-     * per season; concluded seasons are cached forever. Network requests are
-     * reported to `progress`, cache hits are not.
+     * standings, so this fetches the driver's seasons and then the full
+     * standings of each season (the same entry as `getDriverStandings`), keeping
+     * the driver's row: seasons are shared between drivers and with the
+     * standings page. Concluded seasons are cached forever. Network requests
+     * are reported to `progress`, cache hits are not.
      */
     async getDriverSeasonStandings(driverId: string, progress?: ProgressTracker): Promise<StandingsList[]> {
       const seasonsPath = driverPath(driverId, 'seasons')
@@ -135,13 +137,12 @@ export function createJolpicaApi(client: JolpicaClient) {
         client.fetchAll(seasonsPath, seasons, undefined, progress),
       )
       const perSeason = await Promise.all(
-        driverSeasons.map((year) => {
+        driverSeasons.map(async (year): Promise<StandingsList | null> => {
           const season = Number(year)
-          const path = `${season}/${driverPath(driverId, 'driverStandings')}`
-          return client.cached(path, seasonTtl(season), async () => {
-            const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists, progress)
-            return lists.at(-1) ?? null
-          })
+          const standings = await latestDriverStandings(season, `${season}/driverStandings/`, progress)
+          const standing = standings.find((entry) => entry.Driver.driverId === driverId)
+          // The season standings cache keeps only the rows, not the round they refer to.
+          return standing ? { season: year, round: '', DriverStandings: [standing] } : null
         }),
       )
       return perSeason.filter((list): list is StandingsList => list !== null)

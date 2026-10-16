@@ -43,7 +43,7 @@ La fase più importante: tutto il resto si appoggia qui.
 - *Pagine*: prima pagina con `limit=100`, poi tutte le altre fino a `total`; le gare spezzate tra due pagine vengono riunite (`src/api/paginate.ts`).
 - *Cache* (`src/api/cache.ts`, IndexedDB con ripiego in memoria): stagioni concluse senza scadenza; stagione in corso 6 h, ma 30 min se la risposta è vuota; dati per pilota 24 h. Chiavi con prefisso `v1:`.
 - *Funzioni pubbliche*: `src/api/index.ts`. Pagina di prova nascosta: `/dev/dati`.
-- Nota: Jolpica non accetta `drivers/{id}/driverStandings/` senza stagione, quindi `getDriverSeasonStandings` legge prima `drivers/{id}/seasons/` e poi una classifica per stagione (in cache per sempre per le stagioni concluse).
+- Nota: Jolpica non accetta `drivers/{id}/driverStandings/` senza stagione, quindi `getDriverSeasonStandings` legge prima `drivers/{id}/seasons/` e poi la classifica completa di ogni stagione (`{stagione}/driverStandings/`, la stessa voce di cache di `getDriverStandings`), tenendo la riga del pilota: le stagioni sono condivise tra piloti e con la pagina Classifiche (in cache per sempre per le stagioni concluse). Il `round` delle `StandingsList` restituite è vuoto (la cache della classifica tiene solo le righe); `headToHead.ts` non lo usa.
 
 ## Fase 2 – Calendario
 - Elenco gare della stagione: round, nome GP, circuito, paese, data
@@ -184,6 +184,7 @@ Solo logica e test, niente interfaccia.
 - Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): valutare il caricamento separato delle pagine (`import()` dinamico)
 - Colori del grafico classifiche (`src/lib/chartColors.ts`) per il tema scuro
 - Unificare championshipLabel (headToHead.ts) e positionLabel (standings.ts)
+- Limiti Jolpica per IP, destinati a diminuire: ridurre le richieste invece di rallentare la coda. Fatto: classifiche stagione per stagione del pilota lette dalla classifica completa della stagione, condivisa tra piloti e con Classifiche (es. Senna–Prost: 1984–1993 scaricate una volta sola). Da valutare: ricavare le stagioni di un pilota da `getDriverResults` invece di `drivers/{id}/seasons/` (una richiesta in meno per pilota, ma in sequenza).
 
 ### Prima di rendere pubblico il repository
 - README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"

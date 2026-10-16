@@ -37,6 +37,33 @@ function noRaces() {
   return json(response({ RaceTable: { Races: [] } }, { total: 0 }))
 }
 
+function careerStandingsHandler(
+  driverSeasons: Record<string, string[]>,
+  classified: Record<string, string[]> = driverSeasons,
+) {
+  return (url: URL) => {
+    const driver = url.pathname.match(/\/drivers\/(\w+)\/seasons\/$/)?.[1]
+    if (driver) {
+      const seasons = (driverSeasons[driver] ?? []).map((season) => ({ season }))
+      return json(response({ SeasonTable: { Seasons: seasons } }, { total: seasons.length }))
+    }
+    const season = url.pathname.match(/f1\/(\d{4})\/driverStandings\/$/)?.[1] ?? ''
+    const rows = Object.entries(classified)
+      .filter(([, seasons]) => seasons.includes(season))
+      .map(([driverId], index) => ({
+        position: season === '1988' && driverId === 'senna' ? '1' : String(index + 9),
+        positionText: '',
+        points: '0',
+        wins: '0',
+        Driver: { driverId, givenName: 'Nome', familyName: driverId },
+        Constructors: [],
+      }))
+    return json(
+      response({ StandingsTable: { StandingsLists: [{ season, round: '16', DriverStandings: rows }] } }, { total: rows.length }),
+    )
+  }
+}
+
 describe('pagination', () => {
   it('downloads every page until total is reached', async () => {
     const all = Array.from({ length: 250 }, (_, i) => makeDriver(i))
@@ -164,40 +191,51 @@ describe('cache', () => {
     expect(entry?.expiresAt).toBe((entry?.savedAt ?? 0) + TTL_DRIVER)
   })
 
-  it('builds career standings from one request per season, caching concluded seasons forever', async () => {
-    const { api, fetchFn, store, clock } = setup((url) => {
-      if (url.pathname.endsWith('/drivers/senna/seasons/')) {
-        return json(
-          response({ SeasonTable: { Seasons: [{ season: '1984' }, { season: '1988' }] } }, { total: 2 }),
-        )
-      }
-      const season = url.pathname.match(/f1\/(\d{4})\//)?.[1] ?? ''
-      const standing = {
-        position: season === '1988' ? '1' : '9',
-        positionText: '',
-        points: '0',
-        wins: '0',
-        Driver: { driverId: 'senna', givenName: 'Ayrton', familyName: 'Senna' },
-        Constructors: [],
-      }
-      return json(
-        response({ StandingsTable: { StandingsLists: [{ season, round: '16', DriverStandings: [standing] }] } }, { total: 1 }),
-      )
-    })
+  it('builds career standings from the full standings of each season, caching concluded seasons forever', async () => {
+    const { api, fetchFn, store, clock } = setup(careerStandingsHandler({ senna: ['1984', '1988'] }))
 
     const standings = await api.getDriverSeasonStandings('senna')
 
-    expect(standings.map((s) => [s.season, s.DriverStandings?.[0].position])).toEqual([
-      ['1984', '9'],
-      ['1988', '1'],
+    expect(standings.map((s) => [s.season, s.DriverStandings?.map((d) => [d.Driver.driverId, d.position])])).toEqual([
+      ['1984', [['senna', '9']]],
+      ['1988', [['senna', '1']]],
     ])
-    expect(fetchFn).toHaveBeenCalledTimes(3)
-    expect((await store.get('v1:1988/drivers/senna/driverStandings/'))?.expiresAt).toBeNull()
+    expect(fetchFn.mock.calls.map(([input]) => new URL(String(input)).pathname)).toEqual([
+      '/ergast/f1/drivers/senna/seasons/',
+      '/ergast/f1/1984/driverStandings/',
+      '/ergast/f1/1988/driverStandings/',
+    ])
+    expect((await store.get('v1:1988/driverStandings/'))?.expiresAt).toBeNull()
 
     // After the seasons list expires, only that list is downloaded again.
     clock.advance(TTL_DRIVER + MINUTE)
     await api.getDriverSeasonStandings('senna')
     expect(fetchFn).toHaveBeenCalledTimes(4)
+  })
+
+  it('shares season standings between drivers and with getDriverStandings', async () => {
+    const { api, fetchFn } = setup(careerStandingsHandler({ senna: ['1984', '1988'], prost: ['1980', '1984', '1988'] }))
+
+    await api.getDriverSeasonStandings('senna')
+    const prost = await api.getDriverSeasonStandings('prost')
+    const season1988 = await api.getDriverStandings(1988)
+
+    expect(prost.map((s) => [s.season, s.DriverStandings?.[0].Driver.driverId])).toEqual([
+      ['1980', 'prost'],
+      ['1984', 'prost'],
+      ['1988', 'prost'],
+    ])
+    expect(season1988.map((d) => d.Driver.driverId)).toEqual(['senna', 'prost'])
+    // Two seasons lists, 1984 and 1988 once each, 1980 for Prost only.
+    expect(fetchFn).toHaveBeenCalledTimes(5)
+  })
+
+  it('skips seasons whose standings do not include the driver', async () => {
+    const { api } = setup(careerStandingsHandler({ senna: ['1984', '1988'] }, { senna: ['1988'] }))
+
+    const standings = await api.getDriverSeasonStandings('senna')
+
+    expect(standings.map((s) => s.season)).toEqual(['1988'])
   })
 
   it('makes one request for identical simultaneous calls', async () => {
