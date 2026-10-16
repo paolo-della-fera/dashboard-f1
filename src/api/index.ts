@@ -10,8 +10,10 @@ import type {
 import { TTL_DRIVER, ttlFor } from './cache.ts'
 import { createJolpicaClient, type JolpicaClient } from './client.ts'
 import { mergeRaces, mergeStandingsLists } from './paginate.ts'
+import type { ProgressTracker } from './progress.ts'
 
 export { ApiError, isRateLimitError } from './errors.ts'
+export { createProgressTracker, type Progress, type ProgressTracker } from './progress.ts'
 
 const races = (data: MRData) => data.RaceTable?.Races ?? []
 const standingsLists = (data: MRData) => data.StandingsTable?.StandingsLists ?? []
@@ -109,34 +111,35 @@ export function createJolpicaApi(client: JolpicaClient) {
     },
 
     /** Every race of a driver's career, each with the driver's result. */
-    getDriverResults(driverId: string): Promise<Race[]> {
+    getDriverResults(driverId: string, progress?: ProgressTracker): Promise<Race[]> {
       const path = driverPath(driverId, 'results')
-      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces))
+      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces, progress))
     },
 
     /** Every qualifying of a driver's career. */
-    getDriverQualifying(driverId: string): Promise<Race[]> {
+    getDriverQualifying(driverId: string, progress?: ProgressTracker): Promise<Race[]> {
       const path = driverPath(driverId, 'qualifying')
-      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces))
+      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces, progress))
     },
 
     /**
      * Championship standing of the driver for each season raced (final, or
      * latest for the current season). Jolpica needs a season for driver
      * standings, so this fetches the driver's seasons and then one standing
-     * per season; concluded seasons are cached forever.
+     * per season; concluded seasons are cached forever. Network requests are
+     * reported to `progress`, cache hits are not.
      */
-    async getDriverSeasonStandings(driverId: string): Promise<StandingsList[]> {
+    async getDriverSeasonStandings(driverId: string, progress?: ProgressTracker): Promise<StandingsList[]> {
       const seasonsPath = driverPath(driverId, 'seasons')
       const driverSeasons = await client.cached(seasonsPath, driverTtl, () =>
-        client.fetchAll(seasonsPath, seasons),
+        client.fetchAll(seasonsPath, seasons, undefined, progress),
       )
       const perSeason = await Promise.all(
         driverSeasons.map((year) => {
           const season = Number(year)
           const path = `${season}/${driverPath(driverId, 'driverStandings')}`
           return client.cached(path, seasonTtl(season), async () => {
-            const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+            const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists, progress)
             return lists.at(-1) ?? null
           })
         }),

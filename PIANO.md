@@ -9,7 +9,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 3 – Classifiche
 - [x] Fase 4 – Risultati
 - [x] Fase 5 – Testa a testa: dati e statistiche
-- [ ] Fase 6 – Testa a testa: interfaccia e grafici
+- [x] Fase 6 – Testa a testa: interfaccia e grafici
 - [ ] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
 
@@ -148,6 +148,14 @@ Solo logica e test, niente interfaccia.
 
 **Fatto quando:** il confronto funziona per due contemporanei (Hamilton–Verstappen), due di epoche diverse (Fangio–Schumacher) e due ex compagni (Senna–Prost).
 
+**Come funziona (riepilogo):**
+- *Rotta*: `/testa-a-testa?pilota1=senna&pilota2=prost` (confronto condivisibile, il tasto indietro funziona). Senza piloti: 4 confronti famosi cliccabili (`FAMOUS_MATCHUPS`). Stesso pilota due volte: "Scegli due piloti diversi"; ID assente dall'elenco piloti: "Pilota non trovato".
+- *Hook* (`src/hooks/useHeadToHead.ts`): `useAllDrivers` (elenco per la ricerca) e `useDriverCareer` (risultati + qualifiche + classifiche per stagione in parallelo → `DriverCareer`). Ultima stagione conclusa da `lastConcludedSeason` sul calendario dell'anno corrente (finché non arriva: anno precedente). La carriera parte subito, senza aspettare l'elenco piloti: un ID non valido costa 3 richieste vuote, in cambio i caricamenti validi non aspettano le ~9 pagine dell'elenco.
+- *Avanzamento*: `fetchAll` e le tre funzioni per pilota accettano un `ProgressTracker` opzionale (`src/api/progress.ts`); senza tracker il comportamento è invariato. Si contano solo le richieste di rete (non la cache); il totale cresce mentre si scoprono pagine e stagioni. Lo store per pilota (`src/hooks/careerProgress.ts`, `useSyncExternalStore`) alimenta "Senna: 12 di 28 richieste" + barra.
+- *Logica di vista* (`src/lib/headToHeadView.ts`): ricerca senza accenti/maiuscole con tutte le parole (cognome che inizia con la query per primo), evidenziazione di chi è avanti (vittorie, podi, pole, titoli, percentuali, miglior piazzamento; giri veloci solo se entrambe le carriere sono coperte dal 2004; gare/ritiri/stagioni mai), nota "dati disponibili dal 2004" (n.d. o parziale con gare coperte), percentuali all'italiana, stagioni compatte ("1988, 1990–1991"), nomi brevi nei grafici (nome completo se stesso cognome).
+- *Grafici*: barre affiancate vittorie/podi/pole/titoli e percentuali per gara; linee posizione in campionato per anno di carriera (anno = stagione − prima stagione + 1, quindi le pause restano buchi; SQ/NC senza punto; asse invertito, 1 in alto); confronto "davanti all'altro" in gara e qualifica (con gare non contate e confronti decisi sulla griglia), sezione compagni con tabella stagioni (punti confrontabili). Tabelle stagione per stagione in `<details>` con avviso sui punti non confrontabili tra epoche.
+- *Verifica sui dati reali* (script temporaneo, non nel repo): ID dei 4 confronti famosi presenti nell'elenco piloti. Senna–Prost come in Fase 5 (139 gare insieme, compagni 31: gara 17–13, qualifica 27–4; giri veloci n.d.). Hamilton–Verstappen: 249 gare insieme, gara 134–113, qualifica 137–112, nessuna sezione compagni, giri veloci senza nota. Avanzamento coerente (Senna 15/15, Hamilton 29/29). Fangio–Schumacher non completato per risposte 429 del server: da controllare nel browser.
+
 ## Fase 6b – Animazioni
 - Libreria: Motion (installazione autorizzata in questa fase)
 - Transizioni morbide tra le pagine
@@ -175,6 +183,7 @@ Solo logica e test, niente interfaccia.
 - Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
 - Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): valutare il caricamento separato delle pagine (`import()` dinamico)
 - Colori del grafico classifiche (`src/lib/chartColors.ts`) per il tema scuro
+- Unificare championshipLabel (headToHead.ts) e positionLabel (standings.ts)
 
 ### Prima di rendere pubblico il repository
 - README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"

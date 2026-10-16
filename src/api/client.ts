@@ -1,6 +1,7 @@
 import type { JolpicaResponse, MRData } from '../types/jolpica.ts'
 import { type CacheStore, createIndexedDbStore, isFresh } from './cache.ts'
 import { ApiError } from './errors.ts'
+import type { ProgressTracker } from './progress.ts'
 import { createRateLimiter, defaultSleep, type RateLimiter } from './rateLimiter.ts'
 
 export const BASE_URL = 'https://api.jolpi.ca/ergast/f1/'
@@ -23,7 +24,12 @@ export interface JolpicaClientOptions {
 export interface JolpicaClient {
   currentYear(): number
   fetchJson(url: string): Promise<JolpicaResponse>
-  fetchAll<T>(path: string, extract: (data: MRData) => T[], merge?: (items: T[]) => T[]): Promise<T[]>
+  fetchAll<T>(
+    path: string,
+    extract: (data: MRData) => T[],
+    merge?: (items: T[]) => T[],
+    progress?: ProgressTracker,
+  ): Promise<T[]>
   cached<T>(key: string, ttl: (data: T) => number | null, loader: () => Promise<T>): Promise<T>
 }
 
@@ -109,15 +115,25 @@ export function createJolpicaClient(options: JolpicaClientOptions = {}): Jolpica
     path: string,
     extract: (data: MRData) => T[],
     merge: (items: T[]) => T[] = (items) => items,
+    progress?: ProgressTracker,
   ): Promise<T[]> {
+    progress?.expect(1)
     const first = (await fetchJson(pageUrl(path, 0))).MRData
+    progress?.complete(1)
     const total = Number(first.total) || 0
     const step = Number(first.limit) || PAGE_SIZE
 
     // Remaining pages are requested together; the rate limiter spaces them out.
     const offsets: number[] = []
     for (let offset = step; offset < total; offset += step) offsets.push(offset)
-    const rest = await Promise.all(offsets.map((offset) => fetchJson(pageUrl(path, offset))))
+    progress?.expect(offsets.length)
+    const rest = await Promise.all(
+      offsets.map(async (offset) => {
+        const page = await fetchJson(pageUrl(path, offset))
+        progress?.complete(1)
+        return page
+      }),
+    )
 
     const items = [first, ...rest.map((page) => page.MRData)].flatMap(extract)
     return merge(items)

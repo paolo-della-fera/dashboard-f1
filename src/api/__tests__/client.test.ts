@@ -3,6 +3,7 @@ import { type CacheStore, createMemoryStore, TTL_CURRENT, TTL_CURRENT_EMPTY, TTL
 import { createJolpicaClient, parseRetryAfter } from '../client.ts'
 import { ApiError, isRateLimitError } from '../errors.ts'
 import { createJolpicaApi } from '../index.ts'
+import { createProgressTracker } from '../progress.ts'
 import { createRateLimiter } from '../rateLimiter.ts'
 import {
   fakeClock,
@@ -373,5 +374,67 @@ describe('standings after a round', () => {
       json(response({ StandingsTable: { StandingsLists: [] } }, { total: 0 })),
     )
     expect(await api.getDriverStandingsAfterRound(2026, 20)).toEqual([])
+  })
+})
+
+describe('progress', () => {
+  function recorder() {
+    const events: Array<{ done: number; total: number }> = []
+    return { events, tracker: createProgressTracker((progress) => events.push(progress)) }
+  }
+
+  function careerPages(total: number) {
+    return (url: URL) => {
+      const offset = offsetOf(url)
+      const count = Math.min(100, total - offset)
+      const races = Array.from({ length: count }, (_, i) => makeRace(2000 + Math.floor((offset + i) / 20), ((offset + i) % 20) + 1))
+      return json(response({ RaceTable: { Races: races } }, { total, offset }))
+    }
+  }
+
+  it('counts every page of a paginated download', async () => {
+    const { api, fetchFn } = setup(careerPages(250))
+    const { events, tracker } = recorder()
+
+    const races = await api.getDriverResults('hamilton', tracker)
+
+    expect(races).toHaveLength(250)
+    expect(fetchFn).toHaveBeenCalledTimes(3)
+    expect(events[0]).toEqual({ done: 0, total: 1 })
+    expect(events.at(-1)).toEqual({ done: 3, total: 3 })
+  })
+
+  it('returns the same data with or without a tracker', async () => {
+    const withTracker = await setup(careerPages(150)).api.getDriverQualifying('hamilton', recorder().tracker)
+    const without = await setup(careerPages(150)).api.getDriverQualifying('hamilton')
+    expect(withTracker).toEqual(without)
+  })
+
+  it('reports nothing for data already in the cache', async () => {
+    const { api, fetchFn } = setup(careerPages(50))
+    await api.getDriverResults('hamilton')
+    const { events, tracker } = recorder()
+
+    await api.getDriverResults('hamilton', tracker)
+
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+    expect(events).toEqual([])
+  })
+
+  it('counts the seasons list and one standing per season', async () => {
+    const { api } = setup((url) => {
+      if (url.pathname.endsWith('/drivers/senna/seasons/')) {
+        return json(
+          response({ SeasonTable: { Seasons: [{ season: '1984' }, { season: '1985' }, { season: '1988' }] } }, { total: 3 }),
+        )
+      }
+      const season = url.pathname.match(/f1\/(\d{4})\//)?.[1] ?? ''
+      return json(response({ StandingsTable: { StandingsLists: [{ season, round: '16', DriverStandings: [] }] } }, { total: 1 }))
+    })
+    const { events, tracker } = recorder()
+
+    await api.getDriverSeasonStandings('senna', tracker)
+
+    expect(events.at(-1)).toEqual({ done: 4, total: 4 })
   })
 })
