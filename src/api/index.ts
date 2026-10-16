@@ -38,6 +38,20 @@ export function createJolpicaApi(client: JolpicaClient) {
     })
   }
 
+  function latestDriverStandings(season: Season, path: string): Promise<DriverStanding[]> {
+    return client.cached(path, seasonTtl(season), async () => {
+      const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+      return lists.at(-1)?.DriverStandings ?? []
+    })
+  }
+
+  function latestConstructorStandings(season: Season, path: string): Promise<ConstructorStanding[]> {
+    return client.cached(path, seasonTtl(season), async () => {
+      const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+      return lists.at(-1)?.ConstructorStandings ?? []
+    })
+  }
+
   function driverPath(driverId: string, resource: string): string {
     return `drivers/${encodeURIComponent(driverId)}/${resource}/`
   }
@@ -50,20 +64,22 @@ export function createJolpicaApi(client: JolpicaClient) {
 
     /** Latest driver standings of a season. */
     getDriverStandings(season: Season): Promise<DriverStanding[]> {
-      const path = `${season}/driverStandings/`
-      return client.cached(path, seasonTtl(season), async () => {
-        const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
-        return lists.at(-1)?.DriverStandings ?? []
-      })
+      return latestDriverStandings(season, `${season}/driverStandings/`)
     },
 
     /** Latest constructor standings of a season (they exist only from 1958). */
     getConstructorStandings(season: Season): Promise<ConstructorStanding[]> {
-      const path = `${season}/constructorStandings/`
-      return client.cached(path, seasonTtl(season), async () => {
-        const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
-        return lists.at(-1)?.ConstructorStandings ?? []
-      })
+      return latestConstructorStandings(season, `${season}/constructorStandings/`)
+    },
+
+    /** Official driver standings right after a round (empty when not available yet). */
+    getDriverStandingsAfterRound(season: Season, round: number): Promise<DriverStanding[]> {
+      return latestDriverStandings(season, `${season}/${round}/driverStandings/`)
+    },
+
+    /** Official constructor standings right after a round (empty when not available yet). */
+    getConstructorStandingsAfterRound(season: Season, round: number): Promise<ConstructorStanding[]> {
+      return latestConstructorStandings(season, `${season}/${round}/constructorStandings/`)
     },
 
     /** The race with its `Results`, or null when not available yet. */
@@ -138,6 +154,8 @@ export const {
   getSchedule,
   getDriverStandings,
   getConstructorStandings,
+  getDriverStandingsAfterRound,
+  getConstructorStandingsAfterRound,
   getRaceResults,
   getQualifying,
   getSprint,

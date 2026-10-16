@@ -307,3 +307,71 @@ describe('parseRetryAfter', () => {
     expect(parseRetryAfter('soon', 0)).toBeUndefined()
   })
 })
+
+describe('standings after a round', () => {
+  function standingsHandler(url: URL) {
+    const [, season, round] = url.pathname.match(/f1\/(\d{4})\/(\d+)\//) ?? []
+    return json(
+      response(
+        {
+          StandingsTable: {
+            StandingsLists: [
+              {
+                season,
+                round,
+                DriverStandings: [
+                  {
+                    position: '1',
+                    positionText: '1',
+                    points: round,
+                    wins: '0',
+                    Driver: makeDriver(1),
+                    Constructors: [],
+                  },
+                ],
+                ConstructorStandings: [
+                  {
+                    position: '1',
+                    positionText: '1',
+                    points: round,
+                    wins: '0',
+                    Constructor: { constructorId: 'team', name: 'Team' },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        { total: 1 },
+      ),
+    )
+  }
+
+  it('reads driver standings of a given round and caches concluded seasons forever', async () => {
+    const { api, fetchFn, store } = setup(standingsHandler)
+
+    const standings = await api.getDriverStandingsAfterRound(1988, 7)
+
+    expect(standings[0].points).toBe('7')
+    expect(new URL(String(fetchFn.mock.calls[0][0])).pathname).toMatch(/\/f1\/1988\/7\/driverStandings\/$/)
+    expect((await store.get('v1:1988/7/driverStandings/'))?.expiresAt).toBeNull()
+  })
+
+  it('reads constructor standings of a given round', async () => {
+    const { api, fetchFn } = setup(standingsHandler)
+
+    const standings = await api.getConstructorStandingsAfterRound(2026, 3)
+
+    expect(standings[0].points).toBe('3')
+    expect(new URL(String(fetchFn.mock.calls[0][0])).pathname).toMatch(
+      /\/f1\/2026\/3\/constructorStandings\/$/,
+    )
+  })
+
+  it('returns an empty list when the round has no standings yet', async () => {
+    const { api } = setup(() =>
+      json(response({ StandingsTable: { StandingsLists: [] } }, { total: 0 })),
+    )
+    expect(await api.getDriverStandingsAfterRound(2026, 20)).toEqual([])
+  })
+})

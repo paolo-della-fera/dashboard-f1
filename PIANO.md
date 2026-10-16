@@ -6,7 +6,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 0 – Setup del progetto
 - [x] Fase 1 – Livello dati (client API)
 - [x] Fase 2 – Calendario
-- [ ] Fase 3 – Classifiche
+- [x] Fase 3 – Classifiche
 - [ ] Fase 4 – Risultati
 - [ ] Fase 5 – Testa a testa: dati e statistiche
 - [ ] Fase 6 – Testa a testa: interfaccia e grafici
@@ -62,11 +62,19 @@ La fase più importante: tutto il resto si appoggia qui.
 ## Fase 3 – Classifiche
 - Tab Piloti / Costruttori, selettore stagione
 - Tabella: posizione, nome, team, punti, vittorie
-- Grafico a linee dell'andamento punti gara per gara per i primi N (default 5, selezionabili)
-  - calcolarlo dai risultati della stagione (`getSeasonResults`), con funzione pura in `src/lib/` testata
+- Grafico a linee dell'andamento punti gara per gara per i primi N (default 5; scelta tra 3, 5, 8)
+  - costruito dalle **classifiche ufficiali dopo ogni gara** (una richiesta per round), con funzione pura in `src/lib/` testata. Scelta fatta al posto della somma dei risultati (`getSeasonResults`): la somma non coincide con la classifica ufficiale nelle stagioni con scarti (fino al 1990), con la regola "una sola auto a punti" dei costruttori 1958-78, con le sprint e con le squalifiche (Schumacher 1997, McLaren 2007)
 - Nota: la classifica costruttori esiste solo dal 1958
 
 **Fatto quando:** classifiche e grafico sono corretti per la stagione corrente e per una storica; i punti cumulati calcolati coincidono con la classifica finale ufficiale.
+
+**Come funziona (riepilogo):**
+- *API* (`src/api/index.ts`): nuove `getDriverStandingsAfterRound(season, round)` e `getConstructorStandingsAfterRound(season, round)` (`/{stagione}/{round}/driverStandings/`), stessa cache delle altre funzioni per stagione.
+- *Logica* (`src/lib/standings.ts`): `completedRounds` (gare concluse dal calendario), `topSeries` (primi N), `buildPointsProgression` (una riga per gara; un pilota assente in una gara mantiene i punti precedenti, 0 prima della prima apparizione), `positionLabel` ("SQ" per `positionText` "D"), `parsePoints` (decimali anni '50). Colori delle linee in `src/lib/chartColors.ts`: 8 colori fissi, verificati per il daltonismo, per questo N massimo è 8.
+- *Hook* (`src/hooks/useStandings.ts`): `useStandings` (tabella) e `useStandingsHistory` (grafico: calendario → round conclusi → una richiesta per round, round ancora senza classifica scartati). Il grafico parte solo dopo che la tabella è arrivata; quello costruttori solo quando si apre il tab.
+- *Pagina*: parametri `?stagione=AAAA&tipo=costruttori`; tabella e grafico hanno stati di caricamento/errore separati. Costruttori prima del 1958: messaggio, nessuna chiamata.
+- *Costo*: ~16-24 richieste per stagione e per tipo alla prima apertura; stagioni concluse in cache per sempre.
+- Verificato sui dati reali: 1988 finisce con Senna 90 e Prost 87 (punti conteggiati), 1997 Schumacher "SQ", 2026 classifica dopo l'ultimo round uguale alla classifica attuale (sprint comprese).
 
 ## Fase 4 – Risultati
 - Pagina del singolo GP (raggiungibile da calendario): risultato gara, qualifiche, sprint se presente
@@ -123,6 +131,8 @@ Solo logica e test, niente interfaccia.
 - Pubblicazione (es. Vercel o Netlify)
 
 - Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
+- Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): valutare il caricamento separato delle pagine (`import()` dinamico)
+- Colori del grafico classifiche (`src/lib/chartColors.ts`) per il tema scuro
 
 ### Prima di rendere pubblico il repository
 - README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"
