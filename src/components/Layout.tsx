@@ -9,7 +9,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <header className="bg-red-700 text-white shadow">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
           <span className="text-xl font-bold">Dashboard F1</span>
           <NavBar />
         </div>

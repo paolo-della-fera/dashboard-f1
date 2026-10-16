@@ -52,6 +52,7 @@ src/
 - Testi dell'interfaccia in italiano; codice, nomi di variabili e commenti in inglese
 - Ogni pagina gestisce tre stati: caricamento, errore, dati
 - Le pagine devono funzionare anche su telefono (da 360px di larghezza); il controllo completo del responsive si fa nella Fase 7.
+- Su telefono le aree da toccare (voci di navigazione, tab, link come GP precedente/successivo) sono alte almeno 44px: `min-h-11` con il testo centrato verticalmente.
 
 ## Regole importanti
 - Non installare nuove dipendenze senza chiedermelo

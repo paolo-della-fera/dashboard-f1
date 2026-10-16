@@ -10,13 +10,14 @@ const links = [
 export default function NavBar() {
   return (
     <nav aria-label="Navigazione principale">
-      <ul className="flex flex-wrap gap-1">
+      {/* Phones: four equal columns in one row; every link is at least 44px tall. */}
+      <ul className="grid grid-cols-4 gap-1 sm:flex sm:flex-wrap">
         {links.map((link) => (
-          <li key={link.to}>
+          <li key={link.to} className="flex">
             <NavLink
               to={link.to}
               className={({ isActive }) =>
-                `block rounded px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+                `flex min-h-11 w-full items-center justify-center rounded px-1 py-1 text-center text-xs leading-tight font-medium transition-colors duration-150 sm:px-3 sm:text-sm ${
                   isActive ? 'bg-white text-red-700' : 'text-white hover:bg-red-600'
                 }`
               }

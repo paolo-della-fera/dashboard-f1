@@ -13,7 +13,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
   - [x] 7a – Pulizia del codice e robustezza
-  - [ ] 7b – Responsive
+  - [x] 7b – Responsive
   - [ ] 7c – Tema scuro e accessibilità
   - [ ] 7d – Revisione finale e pubblicazione
 
@@ -217,6 +217,15 @@ Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell
 - Controllo delle animazioni (Fase 6b) su telefono
 
 **Fatto quando:** tutte le pagine sono usabili a 360px senza scorrimento orizzontale della pagina (eventuali tabelle scorrevoli solo se motivate); test e lint passano.
+
+**Come funziona (riepilogo):**
+- *Breakpoint*: solo `sm` (640px) di Tailwind; sotto è "telefono". Nessuna logica nuova, solo classi.
+- *Aree da toccare ≥ 44px* (`min-h-11`, testo centrato in verticale): voci della navigazione, tab Piloti/Costruttori e Gara/Qualifiche/Sprint, link GP precedente/successivo. Regola da mantenere per i nuovi controlli.
+- *Intestazione*: su telefono titolo sopra e navigazione in una riga di 4 colonne uguali (testo `xs`, "Testa a testa" può andare a capo); da `sm` come prima.
+- *Colonne nascoste su telefono* (`hidden sm:table-cell`): Calendario → Circuito e Paese (sono nell'intestazione della pagina Risultati); Risultati gara/sprint → +/− e Giro veloce (con la legenda "Viola"). Team in risultati e qualifiche: colonna nascosta e scuderia in piccolo sotto il nome del pilota (`sm:hidden`); una delle due versioni è sempre `display: none`, quindi lo screen reader non la legge due volte.
+- *Grafici linea* (andamento punti, posizione per anno di carriera): niente più larghezza minima con scorrimento interno; occupano la larghezza disponibile e Recharts dirada le etichette dell'asse X (`interval="preserveStartEnd"`, `minTickGap`), il tooltip dà il dettaglio. Andamento punti alto 256px su telefono, 320px da `sm`.
+- *Tabelle che possono ancora scorrere (solo la tabella, mai la pagina)*: qualifiche con Q1–Q3 (tre tempi da confrontare, ~340px) e "stagione per stagione" del testa a testa (8 colonne numeriche, dentro un `<details>` chiuso di default). Le altre tabelle stanno in 328px.
+- *Animazioni*: `appear` e la transizione pagina spostano solo in verticale, nessun overflow orizzontale; con Tailwind v4 gli effetti `hover:` valgono solo su dispositivi con puntatore, quindi niente hover "bloccato" al tocco.
 
 ### 7c – Tema scuro e accessibilità
 - Tema scuro (da decidere a inizio sessione: solo preferenza di sistema o anche interruttore)

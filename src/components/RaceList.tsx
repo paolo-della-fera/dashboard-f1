@@ -18,8 +18,9 @@ export default function RaceList({ races, now, nextRace }: RaceListProps) {
           <tr>
             <th scope="col" className="px-2 py-2">Round</th>
             <th scope="col" className="px-2 py-2">Gran Premio</th>
-            <th scope="col" className="px-2 py-2">Circuito</th>
-            <th scope="col" className="px-2 py-2">Paese</th>
+            {/* Phones (360px): circuit and country are hidden, they are on the results page. */}
+            <th scope="col" className="hidden px-2 py-2 sm:table-cell">Circuito</th>
+            <th scope="col" className="hidden px-2 py-2 sm:table-cell">Paese</th>
             <th scope="col" className="px-2 py-2">Data</th>
             <th scope="col" className="px-2 py-2">
               <span className="sr-only">Risultati</span>
@@ -46,8 +47,8 @@ export default function RaceList({ races, now, nextRace }: RaceListProps) {
                     <span className="ml-2 rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-700">Sprint</span>
                   )}
                 </td>
-                <td className="px-2 py-2">{race.Circuit.circuitName}</td>
-                <td className="px-2 py-2">{race.Circuit.Location.country}</td>
+                <td className="hidden px-2 py-2 sm:table-cell">{race.Circuit.circuitName}</td>
+                <td className="hidden px-2 py-2 sm:table-cell">{race.Circuit.Location.country}</td>
                 <td className="px-2 py-2 whitespace-nowrap">{formatRaceDate(race)}</td>
                 <td className="px-2 py-2">
                   {past && (
