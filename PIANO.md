@@ -12,6 +12,10 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 6 – Testa a testa: interfaccia e grafici
 - [x] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
+  - [ ] 7a – Pulizia del codice e robustezza
+  - [ ] 7b – Responsive
+  - [ ] 7c – Tema scuro e accessibilità
+  - [ ] 7d – Revisione finale e pubblicazione
 
 ---
 
@@ -179,28 +183,47 @@ Solo logica e test, niente interfaccia.
 - *Test*: `src/test/setup.ts` imposta `MotionGlobalConfig.skipAnimations = true`, così i test vedono subito i valori finali; `CountUp.test.tsx` riattiva le animazioni per verificare il conteggio.
 
 ## Fase 7 – Rifinitura e pubblicazione
-- Layout responsive (telefono e desktop)
-- Controllo delle animazioni (Fase 6b) su telefono
-- Animazioni e tema scuro: ombre al passaggio del mouse delle card (Fase 6b) da rivedere sullo sfondo scuro
-- Calendario: su telefono nascondere le colonne circuito e paese (o trasformare le righe in card)
-- Risultati: su telefono (360px) nascondere nella tabella gara/sprint le colonne giro veloce e +/− (Fase 4: 8 colonne, ora scorre in orizzontale)
-- Tema scuro
-- Revisione accessibilità: contrasto, navigazione da tastiera, etichette dei grafici
-- Pagina 404 e gestione errori globale
-- Revisione complessiva del codice
-- Pubblicazione (es. Vercel o Netlify)
-- Pubblicazione su Vercel: aggiungere vercel.json con la regola che reindirizza tutte le rotte a index.html
+Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell'ordine indicato:
+- prima le modifiche strutturali (rotte, caricamento separato, pagine di errore), che cambiano l'albero dei componenti su cui lavorano le fasi visive;
+- poi il responsive, così il layout si sistema una volta sola;
+- poi tema scuro e accessibilità insieme, perché il contrasto va verificato su entrambi i temi;
+- infine revisione e pubblicazione, con gli screenshot del README presi dall'interfaccia definitiva.
 
+**Fatto quando (Fase 7 completa):** l'app è online e utilizzabile da telefono.
+
+### 7a – Pulizia del codice e robustezza
 - Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
-- Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): valutare il caricamento separato delle pagine (`import()` dinamico)
-- Colori del grafico classifiche (`src/lib/chartColors.ts`) per il tema scuro
-- Unificare championshipLabel (headToHead.ts) e positionLabel (standings.ts)
+- Pagina 404 e gestione errori globale (error boundary)
+- Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): caricamento separato delle pagine (`import()` dinamico), verificando che la transizione tra pagine (`PageTransition`, Fase 6b) resti corretta
+- Unificare `championshipLabel` (headToHead.ts) e `positionLabel` (standings.ts)
 - Limiti Jolpica per IP, destinati a diminuire: ridurre le richieste invece di rallentare la coda. Fatto: classifiche stagione per stagione del pilota lette dalla classifica completa della stagione, condivisa tra piloti e con Classifiche (es. Senna–Prost: 1984–1993 scaricate una volta sola). Da valutare: ricavare le stagioni di un pilota da `getDriverResults` invece di `drivers/{id}/seasons/` (una richiesta in meno per pilota, ma in sequenza).
 
-### Prima di rendere pubblico il repository
-- README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"
-- File LICENSE (MIT)
-- Controllo che non ci siano dati personali o segreti nel codice e nella cronologia
+**Fatto quando:** `/dev/dati` non è raggiungibile in produzione; un URL inesistente mostra la 404; un errore di rendering mostra un messaggio invece della pagina bianca; `npm run build` senza avviso sui 500 kB (o con motivazione scritta qui); test e lint passano.
+
+### 7b – Responsive
+- Layout responsive (telefono da 360px e desktop), compresa la barra di navigazione
+- Calendario: su telefono nascondere le colonne circuito e paese (o trasformare le righe in card)
+- Risultati: su telefono (360px) nascondere nella tabella gara/sprint le colonne giro veloce e +/− (Fase 4: 8 colonne, ora scorre in orizzontale)
+- Controllo di classifiche, testa a testa e grafici a 360px
+- Controllo delle animazioni (Fase 6b) su telefono
+
+**Fatto quando:** tutte le pagine sono usabili a 360px senza scorrimento orizzontale della pagina (eventuali tabelle scorrevoli solo se motivate); test e lint passano.
+
+### 7c – Tema scuro e accessibilità
+- Tema scuro (da decidere a inizio sessione: solo preferenza di sistema o anche interruttore)
+- Colori del grafico classifiche (`src/lib/chartColors.ts`) e degli altri grafici per il tema scuro
+- Ombre al passaggio del mouse delle card (Fase 6b) da rivedere sullo sfondo scuro
+- Revisione accessibilità: contrasto (su entrambi i temi), navigazione da tastiera, etichette dei grafici
+
+**Fatto quando:** tutte le pagine leggibili in tema chiaro e scuro, contrasto almeno AA, tutte le funzioni usabili da tastiera; test e lint passano.
+
+### 7d – Revisione finale e pubblicazione
+- Revisione complessiva del codice
+- Prima di rendere pubblico il repository:
+  - README con descrizione del progetto, screenshot, istruzioni per avviarlo e la nota "Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da Jolpica F1 API"
+  - File LICENSE (MIT)
+  - Controllo che non ci siano dati personali o segreti nel codice e nella cronologia
+- Pubblicazione su Vercel (o Netlify): aggiungere `vercel.json` con la regola che reindirizza tutte le rotte a `index.html`
 
 **Fatto quando:** l'app è online e utilizzabile da telefono.
 
