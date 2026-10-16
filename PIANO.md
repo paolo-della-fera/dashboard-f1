@@ -8,7 +8,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 2 – Calendario
 - [x] Fase 3 – Classifiche
 - [x] Fase 4 – Risultati
-- [ ] Fase 5 – Testa a testa: dati e statistiche
+- [x] Fase 5 – Testa a testa: dati e statistiche
 - [ ] Fase 6 – Testa a testa: interfaccia e grafici
 - [ ] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
@@ -101,6 +101,39 @@ Solo logica e test, niente interfaccia.
 - Test con dati di esempio scritti a mano
 
 **Fatto quando:** i test passano e i numeri per due piloti noti (es. Senna e Prost) coincidono con fonti attendibili.
+
+**Definizioni** (fonte: `getDriverResults`, `getDriverQualifying`, `getDriverSeasonStandings`; chiave di una gara = stagione + round; righe filtrate per `driverId`):
+- *Riga rappresentativa* di un pilota in una gara (guide condivise anni '50, più righe nella stessa gara): tra le righe in cui è partito, quella classificata con la posizione migliore; se nessuna è classificata, quella con `position` più basso.
+- *Partito*: almeno una riga con `positionText` diverso da "W" (non partito) e "F" (non qualificato).
+- *Classificato*: `positionText` numerico. "R", "D", "E", "N" non sono classificati.
+- **Gare** = gare in cui è partito. I DNQ non si contano (spesso mancano del tutto dai dati, es. Senna San Marino 1984): si mostrano le partenze, non le iscrizioni. Nota: in casi limite (ritiro nel giro di formazione o subito dopo il via, segnati "W" nei dati) le partenze possono differire di 1-2 dalle fonti ufficiali (es. Prost 198 contro 199).
+- **Vittorie** = gare con riga rappresentativa in posizione 1 (guide condivise comprese).
+- **Podi** = gare con riga rappresentativa classificata in posizione 1–3.
+- **Pole** = per ogni gara partita: posizione 1 in qualifica se il pilota ha dati di qualifica per quella gara (dal 1994), altrimenti `grid` "1". Eccezione: nelle gare con sprint del 2021 (round 10, 14, 19) la pole ufficiale andava al vincitore della sprint, quindi si usa `grid` "1".
+- **Giri veloci** = gare con `FastestLap.rank` "1". I dati ci sono solo dal 2004: si restituisce anche il numero di gare coperte e un flag `partial` se la carriera inizia prima; `null` ("n.d.") se nessuna gara è coperta (es. Senna, Prost).
+- **Ritiri** = gare partite con riga rappresentativa `positionText` "R". Chi ha un guasto ma è classificato non è un ritiro; squalifiche (D), esclusioni (E) e non classificati (N) non sono ritiri.
+- **Percentuali** (vittorie %, podi %, pole %) = conteggio / gare partite; `null` con 0 gare.
+- **Stagioni** = stagioni con almeno una gara partita.
+- **Team** = scuderie delle gare partite, in ordine di prima apparizione, ciascuna con le sue stagioni.
+- *Ultima stagione conclusa* = anno corrente se tutte le sue gare sono passate (`raceStatus`), altrimenti anno precedente.
+- **Titoli mondiali** = stagioni concluse con posizione finale 1 nella classifica piloti (la stagione in corso non conta anche se è primo; Schumacher 1997 "D" non conta).
+- **Miglior piazzamento in campionato** = posizione numerica migliore tra le stagioni concluse, con le stagioni in cui l'ha ottenuta; `null` se nessuna.
+- **Stagione per stagione** = per ogni stagione con gare o classifica: team, gare, vittorie, podi, pole, posizione in campionato ("SQ" se escluso, "NC" se in classifica senza posizione, es. Senna 1994, "—" se assente), punti ufficiali (**non confrontabili tra epoche**), flag `provisional` per la stagione non conclusa.
+- I punti totali di carriera non vengono calcolati.
+
+*Confronto diretto* (solo gare in cui sono partiti **entrambi**):
+- **Gara**: se entrambi classificati, davanti chi ha la posizione migliore; se uno solo è classificato, davanti lui; se nessuno dei due, non conta e va nel contatore `bothUnclassified`.
+- **Qualifica**: posizione in qualifica se entrambi hanno dati per quella gara; altrimenti `grid` se entrambi hanno griglia ≥ 1; altrimenti non conta. `fromGrid` dice quanti confronti vengono dalla griglia.
+- **Compagni di squadra**: gare partite da entrambi con almeno una scuderia in comune tra le loro righe (gestisce i cambi di team a metà stagione). Su queste gare: stesso confronto gara/qualifica, più per ogni stagione da compagni team, numero di gare, posizione e punti in campionato di entrambi (qui i punti sono confrontabili: stessa stagione).
+
+**Come funziona (riepilogo):**
+- *Logica* (`src/lib/headToHead.ts`): `driverStats(career, lastConcluded)`, `headToHead(a, b)`, `lastConcludedSeason(currentYear, schedule, now)`. `career` = `{ driverId, results, qualifying, standings }`, cioè le tre risposte delle funzioni per pilota. Nessun hook né pagina: lo scaricamento dei dati (`useHeadToHead`) è della Fase 6.
+- *Test* (`src/lib/__tests__/headToHead.test.ts`): dati scritti a mano per guide condivise, W/F, ritiri, D/E/N, pole da qualifica/griglia/sprint 2021, giri veloci prima e dopo il 2004, stagione in corso, NC, cambio team a metà stagione, piloti mai insieme.
+- *Verifica sui dati reali* (script temporaneo, non nel repo), confrontata con Wikipedia:
+  - Senna: 161 gare, 41 vittorie, 80 podi, 65 pole, titoli 1988/1990/1991, 11 stagioni: tutto coincide.
+  - Prost: 51 vittorie, 106 podi, 33 pole, titoli 1985/1986/1989/1993, 13 stagioni: coincide. Gare **198** contro 199 di Wikipedia: i dati segnano "W" (0 giri) sia Australia 1989 ("Withdrew") sia San Marino 1991 ("Spun off", testacoda nel giro di formazione); Wikipedia ne conta uno dei due come partenza. Si seguono i dati.
+  - Giri veloci n.d. per entrambi (Wikipedia: Senna 19, Prost 41): mancano nei dati prima del 2004.
+  - Compagni McLaren 1988–89: 31 gare; qualifica Senna 27–4 (sulla griglia); gara Senna 17–13, 1 gara con entrambi non classificati. Tutte le 139 gare insieme confrontate in qualifica sulla griglia (nessun dato di qualifica prima del 1994).
 
 ## Fase 6 – Testa a testa: interfaccia e grafici
 - Due selettori con ricerca tra tutti i piloti della storia
