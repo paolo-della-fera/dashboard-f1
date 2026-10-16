@@ -1,4 +1,6 @@
+import { motion } from 'motion/react'
 import type { SeasonStats } from '../lib/headToHead.ts'
+import { appear } from '../lib/motion.ts'
 import { formatPoints } from '../lib/standings.ts'
 
 interface SeasonBySeasonTableProps {
@@ -25,8 +27,8 @@ export default function SeasonBySeasonTable({ name, seasons }: SeasonBySeasonTab
             </tr>
           </thead>
           <tbody>
-            {seasons.map((season) => (
-              <tr key={season.season} className="border-b border-gray-200">
+            {seasons.map((season, index) => (
+              <motion.tr key={season.season} className="border-b border-gray-200" {...appear(index)}>
                 <td className="px-2 py-2 tabular-nums">
                   {season.season}
                   {season.provisional && <span className="ml-1 text-xs text-gray-500">(provvisoria)</span>}
@@ -40,7 +42,7 @@ export default function SeasonBySeasonTable({ name, seasons }: SeasonBySeasonTab
                 <td className="px-2 py-2 text-right tabular-nums">
                   {season.points === null ? '—' : formatPoints(season.points)}
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>

@@ -24,7 +24,7 @@ export default function StandingsTabs({ value, onChange, panelId }: StandingsTab
             aria-selected={selected}
             aria-controls={panelId}
             onClick={() => onChange(kind)}
-            className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium ${
+            className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors duration-150 ${
               selected ? 'border-red-700 text-red-700' : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >

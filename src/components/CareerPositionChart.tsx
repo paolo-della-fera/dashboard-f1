@@ -1,5 +1,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useReducedMotion } from 'motion/react'
 import type { CareerPositionRow } from '../lib/headToHeadView.ts'
+import { CHART_ANIMATION_MS } from '../lib/motion.ts'
 import CareerPositionTooltip from './CareerPositionTooltip.tsx'
 import ComparisonLegend from './ComparisonLegend.tsx'
 
@@ -11,6 +13,7 @@ interface CareerPositionChartProps {
 
 /** Championship position by year of career; position 1 at the top. */
 export default function CareerPositionChart({ rows, names, colors }: CareerPositionChartProps) {
+  const reduceMotion = useReducedMotion()
   return (
     <div>
       <ComparisonLegend
@@ -51,7 +54,9 @@ export default function CareerPositionChart({ rows, names, colors }: CareerPosit
                   dot={{ r: 3, fill: colors[side] }}
                   activeDot={{ r: 5 }}
                   connectNulls={false}
-                  isAnimationActive={false}
+                  isAnimationActive={!reduceMotion}
+                  animationDuration={CHART_ANIMATION_MS}
+                  animationEasing="ease-out"
                 />
               ))}
             </LineChart>

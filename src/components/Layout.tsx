@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import NavBar from './NavBar.tsx'
+import PageTransition from './PageTransition.tsx'
 
 export default function Layout() {
   return (
@@ -11,7 +12,9 @@ export default function Layout() {
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
     </div>
   )

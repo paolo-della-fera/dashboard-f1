@@ -254,6 +254,7 @@ export default function HeadToHeadPage() {
                   />
                   <AheadComparison
                     title="In qualifica"
+                    index={1}
                     comparison={comparison.qualifying}
                     names={names}
                     colors={COLORS}
@@ -282,6 +283,7 @@ export default function HeadToHeadPage() {
                 />
                 <AheadComparison
                   title="In qualifica"
+                  index={1}
                   comparison={comparison.teammates.qualifying}
                   names={names}
                   colors={COLORS}

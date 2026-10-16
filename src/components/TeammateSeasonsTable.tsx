@@ -1,4 +1,6 @@
+import { motion } from 'motion/react'
 import type { TeammateSeason } from '../lib/headToHead.ts'
+import { appear } from '../lib/motion.ts'
 import { formatPoints } from '../lib/standings.ts'
 
 interface TeammateSeasonsTableProps {
@@ -27,8 +29,8 @@ export default function TeammateSeasonsTable({ seasons, names }: TeammateSeasons
           </tr>
         </thead>
         <tbody>
-          {seasons.map((season) => (
-            <tr key={season.season} className="border-b border-gray-200">
+          {seasons.map((season, index) => (
+            <motion.tr key={season.season} className="border-b border-gray-200" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{season.season}</td>
               <td className="px-2 py-2">{season.teams.join(' / ')}</td>
               <td className="px-2 py-2 text-right tabular-nums">{season.races}</td>
@@ -38,7 +40,7 @@ export default function TeammateSeasonsTable({ seasons, names }: TeammateSeasons
               <td className="px-2 py-2 text-right tabular-nums">
                 {season.b.position} · {points(season.b.points)} pt
               </td>
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
       </table>

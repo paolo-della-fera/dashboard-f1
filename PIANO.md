@@ -10,7 +10,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 4 – Risultati
 - [x] Fase 5 – Testa a testa: dati e statistiche
 - [x] Fase 6 – Testa a testa: interfaccia e grafici
-- [ ] Fase 6b – Animazioni
+- [x] Fase 6b – Animazioni
 - [ ] Fase 7 – Rifinitura e pubblicazione
 
 ---
@@ -168,9 +168,20 @@ Solo logica e test, niente interfaccia.
 
 **Fatto quando:** tutte le pagine hanno animazioni coerenti, con "riduci movimento" attivo non si muove nulla di superfluo, test e lint passano.
 
+**Come funziona (riepilogo):**
+- *Libreria*: `motion` (import da `motion/react`).
+- *Tempi* (`src/lib/motion.ts`, con test): pagina 200 ms, card/righe 200 ms, conteggio numeri 350 ms, grafici Recharts 350 ms `ease-out`. Comparsa in sequenza con `appear(index)`: ritardo 30 ms per elemento, massimo 180 ms, quindi anche una tabella di 20+ righe è completa entro ~380 ms.
+- *Transizione tra pagine* (`src/components/PageTransition.tsx`, in `Layout`): dissolvenza + 6px in su, solo in ingresso (la pagina nuova non aspetta l'uscita della vecchia). Chiave = prima parte del percorso: cambiare GP, stagione o piloti non la ripete.
+- *Comparsa in sequenza*: righe di calendario, classifiche, risultati, qualifiche, compagni di squadra e stagione per stagione (`motion.tr`); card prossima gara, card piloti, confronti famosi, blocchi "davanti all'altro". Le chiavi delle righe non cambiano, quindi una riga già presente non ricompare.
+- *Numeri che contano* (`src/hooks/useCountUp.ts`, `src/components/CountUp.tsx`): card del testa a testa (percentuali in punti percentuali interi, valore esatto alla fine), conteggi "davanti all'altro" (con la barra divisa che parte dal 50%), punti e vittorie nelle classifiche. Valori intermedi interi, valore finale esatto (decimali compresi). Al cambio di valore (es. cambio stagione) conta dal valore mostrato. Non contano: "n.d.", "—", miglior piazzamento, tabelle risultati e stagioni.
+- *Hover*: card con ombra (e sollevamento di 2px solo con `motion-safe`), link e tab con `transition-colors` 150 ms.
+- *Riduci movimento*: `MotionConfig reducedMotion="user"` in `main.tsx` (niente spostamenti, al più dissolvenza); conteggi, barra divisa e grafici usano `useReducedMotion()` e mostrano subito il valore finale; `index.css` azzera le transizioni CSS.
+- *Test*: `src/test/setup.ts` imposta `MotionGlobalConfig.skipAnimations = true`, così i test vedono subito i valori finali; `CountUp.test.tsx` riattiva le animazioni per verificare il conteggio.
+
 ## Fase 7 – Rifinitura e pubblicazione
 - Layout responsive (telefono e desktop)
 - Controllo delle animazioni (Fase 6b) su telefono
+- Animazioni e tema scuro: ombre al passaggio del mouse delle card (Fase 6b) da rivedere sullo sfondo scuro
 - Calendario: su telefono nascondere le colonne circuito e paese (o trasformare le righe in card)
 - Risultati: su telefono (360px) nascondere nella tabella gara/sprint le colonne giro veloce e +/− (Fase 4: 8 colonne, ora scorre in orizzontale)
 - Tema scuro

@@ -1,6 +1,8 @@
 import { useId } from 'react'
+import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { Matchup } from '../lib/headToHeadView.ts'
+import { appear } from '../lib/motion.ts'
 
 interface FamousMatchupsProps {
   matchups: Matchup[]
@@ -16,15 +18,15 @@ export default function FamousMatchups({ matchups, searchFor }: FamousMatchupsPr
         Confronti famosi
       </h2>
       <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-        {matchups.map((matchup) => (
-          <li key={`${matchup.a.driverId}-${matchup.b.driverId}`}>
+        {matchups.map((matchup, index) => (
+          <motion.li key={`${matchup.a.driverId}-${matchup.b.driverId}`} {...appear(index)}>
             <Link
               to={{ search: searchFor(matchup) }}
-              className="block rounded-lg border border-gray-200 bg-white px-4 py-3 font-medium hover:border-red-700 hover:text-red-700"
+              className="block rounded-lg border border-gray-200 bg-white px-4 py-3 font-medium transition duration-150 hover:border-red-700 hover:text-red-700 hover:shadow-md motion-safe:hover:-translate-y-0.5"
             >
               {matchup.a.name} – {matchup.b.name}
             </Link>
-          </li>
+          </motion.li>
         ))}
       </ul>
     </section>

@@ -16,7 +16,7 @@ export default function NavBar() {
             <NavLink
               to={link.to}
               className={({ isActive }) =>
-                `block rounded px-3 py-2 text-sm font-medium transition-colors ${
+                `block rounded px-3 py-2 text-sm font-medium transition-colors duration-150 ${
                   isActive ? 'bg-white text-red-700' : 'text-white hover:bg-red-600'
                 }`
               }

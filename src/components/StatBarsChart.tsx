@@ -1,5 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useReducedMotion } from 'motion/react'
 import type { BarRow } from '../lib/headToHeadView.ts'
+import { CHART_ANIMATION_MS } from '../lib/motion.ts'
 import ComparisonLegend from './ComparisonLegend.tsx'
 
 interface StatBarsChartProps {
@@ -11,6 +13,7 @@ interface StatBarsChartProps {
 
 /** Side-by-side bars, one pair per statistic. */
 export default function StatBarsChart({ rows, names, colors, formatValue = String }: StatBarsChartProps) {
+  const reduceMotion = useReducedMotion()
   return (
     <div>
       <ComparisonLegend
@@ -35,8 +38,24 @@ export default function StatBarsChart({ rows, names, colors, formatValue = Strin
               cursor={{ fill: '#f1f1ee' }}
               formatter={(value) => (value === null || value === undefined ? '—' : formatValue(Number(value)))}
             />
-            <Bar dataKey="a" name={names.a} fill={colors.a} radius={[2, 2, 0, 0]} isAnimationActive={false} />
-            <Bar dataKey="b" name={names.b} fill={colors.b} radius={[2, 2, 0, 0]} isAnimationActive={false} />
+            <Bar
+              dataKey="a"
+              name={names.a}
+              fill={colors.a}
+              radius={[2, 2, 0, 0]}
+              isAnimationActive={!reduceMotion}
+              animationDuration={CHART_ANIMATION_MS}
+              animationEasing="ease-out"
+            />
+            <Bar
+              dataKey="b"
+              name={names.b}
+              fill={colors.b}
+              radius={[2, 2, 0, 0]}
+              isAnimationActive={!reduceMotion}
+              animationDuration={CHART_ANIMATION_MS}
+              animationEasing="ease-out"
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

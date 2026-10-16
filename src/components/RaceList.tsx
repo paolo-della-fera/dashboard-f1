@@ -1,6 +1,8 @@
+import { motion } from 'motion/react'
 import { Link } from 'react-router-dom'
 import type { Race } from '../types/jolpica.ts'
 import { formatRaceDate, raceStatus } from '../lib/calendar.ts'
+import { appear } from '../lib/motion.ts'
 
 interface RaceListProps {
   races: Race[]
@@ -25,12 +27,13 @@ export default function RaceList({ races, now, nextRace }: RaceListProps) {
           </tr>
         </thead>
         <tbody>
-          {races.map((race) => {
+          {races.map((race, index) => {
             const past = raceStatus(race, now) === 'past'
             const isNext = race === nextRace
             return (
-              <tr
+              <motion.tr
                 key={race.round}
+                {...appear(index)}
                 aria-current={isNext ? 'true' : undefined}
                 className={`border-b border-gray-200 ${past ? 'text-gray-500' : ''} ${
                   isNext ? 'bg-red-50 font-semibold' : ''
@@ -50,14 +53,14 @@ export default function RaceList({ races, now, nextRace }: RaceListProps) {
                   {past && (
                     <Link
                       to={`/risultati/${race.season}/${race.round}`}
-                      className="text-red-700 underline hover:text-red-900"
+                      className="text-red-700 underline transition-colors duration-150 hover:text-red-900"
                       aria-label={`Risultati ${race.raceName} ${race.season}`}
                     >
                       Risultati
                     </Link>
                   )}
                 </td>
-              </tr>
+              </motion.tr>
             )
           })}
         </tbody>

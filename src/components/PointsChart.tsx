@@ -1,5 +1,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useReducedMotion } from 'motion/react'
 import { seriesColor } from '../lib/chartColors.ts'
+import { CHART_ANIMATION_MS } from '../lib/motion.ts'
 import type { ChartSeries, ProgressionRow } from '../lib/standings.ts'
 import PointsTooltip from './PointsTooltip.tsx'
 
@@ -9,6 +11,7 @@ interface PointsChartProps {
 }
 
 export default function PointsChart({ rows, series }: PointsChartProps) {
+  const reduceMotion = useReducedMotion()
   return (
     <div>
       <ul aria-label="Legenda" className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700">
@@ -42,7 +45,9 @@ export default function PointsChart({ rows, series }: PointsChartProps) {
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 4 }}
-                  isAnimationActive={false}
+                  isAnimationActive={!reduceMotion}
+                  animationDuration={CHART_ANIMATION_MS}
+                  animationEasing="ease-out"
                 />
               ))}
             </LineChart>

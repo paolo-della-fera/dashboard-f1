@@ -1,3 +1,5 @@
+import { motion } from 'motion/react'
+import { appear } from '../lib/motion.ts'
 import {
   fastestLapTime,
   gridLabel,
@@ -48,7 +50,7 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
             const fastest = isFastestLap(result)
             return (
               // 1950s shared drives: the same driver can appear twice in a race.
-              <tr key={`${index}-${result.Driver.driverId}`} className="border-b border-gray-200">
+              <motion.tr key={`${index}-${result.Driver.driverId}`} className="border-b border-gray-200" {...appear(index)}>
                 <td className="px-2 py-2 tabular-nums">{resultPositionLabel(result)}</td>
                 <td className="px-2 py-2 font-medium whitespace-nowrap">
                   {result.Driver.givenName} {result.Driver.familyName}
@@ -72,7 +74,7 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
                     )}
                   </td>
                 )}
-              </tr>
+              </motion.tr>
             )
           })}
         </tbody>

@@ -1,5 +1,8 @@
+import { motion } from 'motion/react'
+import { appear } from '../lib/motion.ts'
 import { driverTeams, formatPoints, parsePoints, positionLabel } from '../lib/standings.ts'
 import type { DriverStanding } from '../types/jolpica.ts'
+import CountUp from './CountUp.tsx'
 
 interface DriverStandingsTableProps {
   standings: DriverStanding[]
@@ -20,16 +23,20 @@ export default function DriverStandingsTable({ standings }: DriverStandingsTable
           </tr>
         </thead>
         <tbody>
-          {standings.map((standing) => (
-            <tr key={standing.Driver.driverId} className="border-b border-gray-200">
+          {standings.map((standing, index) => (
+            <motion.tr key={standing.Driver.driverId} className="border-b border-gray-200" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{positionLabel(standing)}</td>
               <td className="px-2 py-2 font-medium">
                 {standing.Driver.givenName} {standing.Driver.familyName}
               </td>
               <td className="px-2 py-2">{driverTeams(standing)}</td>
-              <td className="px-2 py-2 text-right tabular-nums">{formatPoints(parsePoints(standing.points))}</td>
-              <td className="px-2 py-2 text-right tabular-nums">{standing.wins}</td>
-            </tr>
+              <td className="px-2 py-2 text-right tabular-nums">
+                <CountUp value={parsePoints(standing.points)} format={formatPoints} />
+              </td>
+              <td className="px-2 py-2 text-right tabular-nums">
+                <CountUp value={Number(standing.wins) || 0} />
+              </td>
+            </motion.tr>
           ))}
         </tbody>
       </table>

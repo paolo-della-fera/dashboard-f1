@@ -1,5 +1,7 @@
+import { motion } from 'motion/react'
 import type { Race } from '../types/jolpica.ts'
 import { formatRaceDate, raceStart, raceStatus } from '../lib/calendar.ts'
+import { appear } from '../lib/motion.ts'
 import Countdown from './Countdown.tsx'
 
 interface NextRaceCardProps {
@@ -12,7 +14,11 @@ export default function NextRaceCard({ race, now }: NextRaceCardProps) {
   const live = raceStatus(race, now) === 'live'
 
   return (
-    <section aria-labelledby="next-race-title" className="mt-6 rounded-lg bg-red-700 p-5 text-white shadow">
+    <motion.section
+      aria-labelledby="next-race-title"
+      className="mt-6 rounded-lg bg-red-700 p-5 text-white shadow transition-shadow duration-150 hover:shadow-lg"
+      {...appear()}
+    >
       <p className="text-sm font-medium uppercase tracking-wide text-red-100">
         {live ? 'Gara in corso' : 'Prossima gara'} · Round {race.round}
       </p>
@@ -35,6 +41,6 @@ export default function NextRaceCard({ race, now }: NextRaceCardProps) {
           <Countdown target={raceStart(race).getTime()} now={now} />
         )}
       </div>
-    </section>
+    </motion.section>
   )
 }

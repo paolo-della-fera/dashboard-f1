@@ -1,3 +1,5 @@
+import { motion } from 'motion/react'
+import { appear } from '../lib/motion.ts'
 import { qualifyingColumns } from '../lib/results.ts'
 import type { QualifyingResult } from '../types/jolpica.ts'
 
@@ -26,7 +28,7 @@ export default function QualifyingTable({ results }: QualifyingTableProps) {
         </thead>
         <tbody>
           {results.map((result, index) => (
-            <tr key={`${index}-${result.Driver.driverId}`} className="border-b border-gray-200">
+            <motion.tr key={`${index}-${result.Driver.driverId}`} className="border-b border-gray-200" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{result.position}</td>
               <td className="px-2 py-2 font-medium whitespace-nowrap">
                 {result.Driver.givenName} {result.Driver.familyName}
@@ -37,7 +39,7 @@ export default function QualifyingTable({ results }: QualifyingTableProps) {
                   {result[column] || <span className="text-gray-400">—</span>}
                 </td>
               ))}
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
       </table>
