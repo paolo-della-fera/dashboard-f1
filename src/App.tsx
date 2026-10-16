@@ -4,6 +4,7 @@ import CalendarPage from './pages/CalendarPage.tsx'
 import StandingsPage from './pages/StandingsPage.tsx'
 import ResultsPage from './pages/ResultsPage.tsx'
 import HeadToHeadPage from './pages/HeadToHeadPage.tsx'
+import DevDataPage from './pages/DevDataPage.tsx'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="classifiche" element={<StandingsPage />} />
         <Route path="risultati" element={<ResultsPage />} />
         <Route path="testa-a-testa" element={<HeadToHeadPage />} />
+        <Route path="dev/dati" element={<DevDataPage />} />
       </Route>
     </Routes>
   )

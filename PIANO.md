@@ -4,7 +4,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 
 ## Stato
 - [x] Fase 0 – Setup del progetto
-- [ ] Fase 1 – Livello dati (client API)
+- [x] Fase 1 – Livello dati (client API)
 - [ ] Fase 2 – Calendario
 - [ ] Fase 3 – Classifiche
 - [ ] Fase 4 – Risultati
@@ -35,6 +35,14 @@ La fase più importante: tutto il resto si appoggia qui.
 - Test con fetch simulato: paginazione, cache, coda, errori
 
 **Fatto quando:** tutti i test passano e una pagina di prova mostra a schermo i dati grezzi della stagione corrente.
+
+**Come funziona (riepilogo):**
+- *Coda* (`src/api/rateLimiter.ts`): ogni richiesta prende il suo turno, al massimo 4 al secondo. Se il limite di 500/ora imporrebbe un'attesa oltre 10 s, la richiesta fallisce subito con `ApiError` (`rateLimited: true`, `retryAfterMs`); `isRateLimitError()` permette alle pagine di mostrare "riprova tra X minuti".
+- *Errori* (`src/api/client.ts`): 429, 5xx ed errori di rete vengono ritentati fino a 3 volte (1 s, 2 s, 4 s oppure il `Retry-After` del server, se ≤10 s); gli altri errori (es. 404) falliscono subito.
+- *Pagine*: prima pagina con `limit=100`, poi tutte le altre fino a `total`; le gare spezzate tra due pagine vengono riunite (`src/api/paginate.ts`).
+- *Cache* (`src/api/cache.ts`, IndexedDB con ripiego in memoria): stagioni concluse senza scadenza; stagione in corso 6 h, ma 30 min se la risposta è vuota; dati per pilota 24 h. Chiavi con prefisso `v1:`.
+- *Funzioni pubbliche*: `src/api/index.ts`. Pagina di prova nascosta: `/dev/dati`.
+- Nota: Jolpica non accetta `drivers/{id}/driverStandings/` senza stagione, quindi `getDriverSeasonStandings` legge prima `drivers/{id}/seasons/` e poi una classifica per stagione (in cache per sempre per le stagioni concluse).
 
 ## Fase 2 – Calendario
 - Elenco gare della stagione: round, nome GP, circuito, paese, data
@@ -92,6 +100,8 @@ Solo logica e test, niente interfaccia.
 - Pagina 404 e gestione errori globale
 - Revisione complessiva del codice
 - Pubblicazione (es. Vercel o Netlify)
+
+- Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
 
 **Fatto quando:** l'app è online e utilizzabile da telefono.
 

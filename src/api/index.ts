@@ -1,0 +1,149 @@
+import type {
+  ConstructorStanding,
+  Driver,
+  DriverStanding,
+  MRData,
+  Race,
+  Season,
+  StandingsList,
+} from '../types/jolpica.ts'
+import { TTL_DRIVER, ttlFor } from './cache.ts'
+import { createJolpicaClient, type JolpicaClient } from './client.ts'
+import { mergeRaces, mergeStandingsLists } from './paginate.ts'
+
+export { ApiError, isRateLimitError } from './errors.ts'
+
+const races = (data: MRData) => data.RaceTable?.Races ?? []
+const standingsLists = (data: MRData) => data.StandingsTable?.StandingsLists ?? []
+const drivers = (data: MRData) => data.DriverTable?.Drivers ?? []
+const seasons = (data: MRData) => (data.SeasonTable?.Seasons ?? []).map((entry) => entry.season)
+
+export function createJolpicaApi(client: JolpicaClient) {
+  function seasonTtl(season: Season) {
+    return (data: unknown) => {
+      const isEmpty = data === null || (Array.isArray(data) && data.length === 0)
+      return ttlFor(season, client.currentYear(), isEmpty)
+    }
+  }
+  const driverTtl = () => TTL_DRIVER
+
+  function seasonRaces(season: Season, path: string): Promise<Race[]> {
+    return client.cached(path, seasonTtl(season), () => client.fetchAll(path, races, mergeRaces))
+  }
+
+  function singleRace(season: Season, path: string): Promise<Race | null> {
+    return client.cached(path, seasonTtl(season), async () => {
+      const found = await client.fetchAll(path, races, mergeRaces)
+      return found[0] ?? null
+    })
+  }
+
+  function driverPath(driverId: string, resource: string): string {
+    return `drivers/${encodeURIComponent(driverId)}/${resource}/`
+  }
+
+  return {
+    /** Races of a season, with session dates. */
+    getSchedule(season: Season): Promise<Race[]> {
+      return seasonRaces(season, `${season}/races/`)
+    },
+
+    /** Latest driver standings of a season. */
+    getDriverStandings(season: Season): Promise<DriverStanding[]> {
+      const path = `${season}/driverStandings/`
+      return client.cached(path, seasonTtl(season), async () => {
+        const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+        return lists.at(-1)?.DriverStandings ?? []
+      })
+    },
+
+    /** Latest constructor standings of a season (they exist only from 1958). */
+    getConstructorStandings(season: Season): Promise<ConstructorStanding[]> {
+      const path = `${season}/constructorStandings/`
+      return client.cached(path, seasonTtl(season), async () => {
+        const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+        return lists.at(-1)?.ConstructorStandings ?? []
+      })
+    },
+
+    /** The race with its `Results`, or null when not available yet. */
+    getRaceResults(season: Season, round: number): Promise<Race | null> {
+      return singleRace(season, `${season}/${round}/results/`)
+    },
+
+    /** The race with its `QualifyingResults`, or null when missing. */
+    getQualifying(season: Season, round: number): Promise<Race | null> {
+      return singleRace(season, `${season}/${round}/qualifying/`)
+    },
+
+    /** The race with its `SprintResults`, or null when there was no sprint. */
+    getSprint(season: Season, round: number): Promise<Race | null> {
+      return singleRace(season, `${season}/${round}/sprint/`)
+    },
+
+    /** All races of a season, each with its `Results`. */
+    getSeasonResults(season: Season): Promise<Race[]> {
+      return seasonRaces(season, `${season}/results/`)
+    },
+
+    /** Every driver in F1 history. */
+    getAllDrivers(): Promise<Driver[]> {
+      const path = 'drivers/'
+      return client.cached(path, driverTtl, () => client.fetchAll(path, drivers))
+    },
+
+    /** Every race of a driver's career, each with the driver's result. */
+    getDriverResults(driverId: string): Promise<Race[]> {
+      const path = driverPath(driverId, 'results')
+      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces))
+    },
+
+    /** Every qualifying of a driver's career. */
+    getDriverQualifying(driverId: string): Promise<Race[]> {
+      const path = driverPath(driverId, 'qualifying')
+      return client.cached(path, driverTtl, () => client.fetchAll(path, races, mergeRaces))
+    },
+
+    /**
+     * Championship standing of the driver for each season raced (final, or
+     * latest for the current season). Jolpica needs a season for driver
+     * standings, so this fetches the driver's seasons and then one standing
+     * per season; concluded seasons are cached forever.
+     */
+    async getDriverSeasonStandings(driverId: string): Promise<StandingsList[]> {
+      const seasonsPath = driverPath(driverId, 'seasons')
+      const driverSeasons = await client.cached(seasonsPath, driverTtl, () =>
+        client.fetchAll(seasonsPath, seasons),
+      )
+      const perSeason = await Promise.all(
+        driverSeasons.map((year) => {
+          const season = Number(year)
+          const path = `${season}/${driverPath(driverId, 'driverStandings')}`
+          return client.cached(path, seasonTtl(season), async () => {
+            const lists = await client.fetchAll(path, standingsLists, mergeStandingsLists)
+            return lists.at(-1) ?? null
+          })
+        }),
+      )
+      return perSeason.filter((list): list is StandingsList => list !== null)
+    },
+  }
+}
+
+export type JolpicaApi = ReturnType<typeof createJolpicaApi>
+
+const api = createJolpicaApi(createJolpicaClient())
+
+export const {
+  getSchedule,
+  getDriverStandings,
+  getConstructorStandings,
+  getRaceResults,
+  getQualifying,
+  getSprint,
+  getSeasonResults,
+  getAllDrivers,
+  getDriverResults,
+  getDriverQualifying,
+  getDriverSeasonStandings,
+} = api
