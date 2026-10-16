@@ -129,6 +129,7 @@ Solo logica e test, niente interfaccia.
 - Pagina 404 e gestione errori globale
 - Revisione complessiva del codice
 - Pubblicazione (es. Vercel o Netlify)
+- Pubblicazione su Vercel: aggiungere vercel.json con la regola che reindirizza tutte le rotte a index.html
 
 - Rimuovere o nascondere la pagina di prova `/dev/dati` (Fase 1)
 - Bundle JS oltre 500 kB (soprattutto Recharts, dalla Fase 3): valutare il caricamento separato delle pagine (`import()` dinamico)
