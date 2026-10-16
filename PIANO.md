@@ -5,7 +5,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 ## Stato
 - [x] Fase 0 – Setup del progetto
 - [x] Fase 1 – Livello dati (client API)
-- [ ] Fase 2 – Calendario
+- [x] Fase 2 – Calendario
 - [ ] Fase 3 – Classifiche
 - [ ] Fase 4 – Risultati
 - [ ] Fase 5 – Testa a testa: dati e statistiche
@@ -51,6 +51,12 @@ La fase più importante: tutto il resto si appoggia qui.
 - Selettore di stagione
 
 **Fatto quando:** il calendario è corretto per la stagione corrente e per una stagione storica (es. 1988).
+
+**Come funziona (riepilogo):**
+- *Logica* (`src/lib/calendar.ts`): inizio gara = `date` + `time` UTC (mezzanotte UTC se manca l'orario); una gara è "in corso" per 3 h dall'inizio, poi "passata". Prossima gara = prima non passata. Stagioni selezionabili 1950 → anno corrente, generate senza chiamate API.
+- *Pagina*: stagione nel parametro `?stagione=AAAA` (default anno corrente). Link "Risultati" sulle gare passate verso `/risultati/:season/:round` (rotta già registrata, pagina vuota fino alla Fase 4).
+- *staleTime TanStack Query* (`src/hooks/queryClient.ts`): la cache del client (IndexedDB) decide la freschezza; TanStack non deve mai trattenere dati più a lungo del TTL del client. Stagioni concluse `Infinity`; stagione in corso e default globale 30 min (`TTL_CURRENT_EMPTY`, il TTL più breve del client). Un refetch dopo lo staleTime legge IndexedDB e va in rete solo se la voce è scaduta. Default globali: `retry: false` (i retry li fa già il client), `refetchOnWindowFocus: false`. Gli hook delle fasi successive usano `seasonStaleTime(season, anno)` per dati per stagione.
+- *Test*: `src/test/setup.ts` sostituisce `fetch` con una risposta 418 immediata, così nessun test può chiamare l'API vera.
 
 ## Fase 3 – Classifiche
 - Tab Piloti / Costruttori, selettore stagione

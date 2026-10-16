@@ -1,18 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { isRateLimitError } from '../api/index.ts'
+import { apiErrorMessage } from '../lib/apiErrorMessage.ts'
 
 interface RawDataBlockProps {
   title: string
   queryKey: readonly unknown[]
   queryFn: () => Promise<unknown>
-}
-
-function errorMessage(error: unknown): string {
-  if (isRateLimitError(error)) {
-    const minutes = Math.ceil(error.retryAfterMs / 60_000)
-    return `Troppe richieste all'API. Riprova tra circa ${minutes} minut${minutes === 1 ? 'o' : 'i'}.`
-  }
-  return 'Impossibile caricare i dati. Riprova più tardi.'
 }
 
 /** Shows the raw JSON returned by an API function (debug only). */
@@ -25,7 +17,7 @@ export default function RawDataBlock({ title, queryKey, queryFn }: RawDataBlockP
       {query.isPending && <p className="mt-2 text-gray-600">Caricamento…</p>}
       {query.isError && (
         <p role="alert" className="mt-2 text-red-700">
-          {errorMessage(query.error)}
+          {apiErrorMessage(query.error)}
         </p>
       )}
       {query.isSuccess && (

@@ -14,6 +14,8 @@ export default function App() {
         <Route path="calendario" element={<CalendarPage />} />
         <Route path="classifiche" element={<StandingsPage />} />
         <Route path="risultati" element={<ResultsPage />} />
+        {/* Single Grand Prix page: content comes in phase 4. */}
+        <Route path="risultati/:season/:round" element={<ResultsPage />} />
         <Route path="testa-a-testa" element={<HeadToHeadPage />} />
         <Route path="dev/dati" element={<DevDataPage />} />
       </Route>
