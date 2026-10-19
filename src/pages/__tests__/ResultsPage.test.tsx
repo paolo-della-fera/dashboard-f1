@@ -231,7 +231,8 @@ describe('ResultsPage', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('/risultati/2026/1')
 
     await user.selectOptions(screen.getByLabelText('Stagione'), '1950')
-    expect(await screen.findByTestId('location')).toHaveTextContent('/risultati/1950/1')
+    // The season selector goes through the /risultati redirect: wait for it to land.
+    await vi.waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/risultati/1950/1'))
   })
 
   it('shows a 1950s race with partial data without errors', async () => {
