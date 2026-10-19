@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { Race } from '../types/jolpica.ts'
 import { formatRaceDate, raceStatus } from '../lib/calendar.ts'
 import { appear } from '../lib/motion.ts'
+import { resultsPath } from '../lib/results.ts'
 
 interface RaceListProps {
   races: Race[]
@@ -53,7 +54,7 @@ export default function RaceList({ races, now, nextRace }: RaceListProps) {
                 <td className="px-2 py-2">
                   {past && (
                     <Link
-                      to={`/risultati/${race.season}/${race.round}`}
+                      to={resultsPath(race)}
                       className="text-accent underline transition-colors duration-150 hover:text-accent-strong"
                       aria-label={`Risultati ${race.raceName} ${race.season}`}
                     >

@@ -271,6 +271,13 @@ Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell
 
 **Fatto quando:** l'app è online e utilizzabile da telefono.
 
+**Come funziona (riepilogo):**
+- *Revisione*: letto tutto `src/`. Nessun `any`, `TODO`, `console.log` o `eslint-disable`; logica coerente con le definizioni delle fasi 1–6. Corretti: `PositionChange` con `role="img"` (lo screen reader ignora `aria-label` su uno `span` semplice; i test esistenti non cambiano), `Countdown` con `dt` prima di `dd` come richiede HTML (aspetto invariato con `flex-col-reverse`), pulsante "Rimuovi" della ricerca piloti 44×44px, `RaceList` usa `resultsPath`. Rimossi i `.gitkeep` delle cartelle ormai piene. Build: chunk più grande 366 kB (Recharts, ora chiamato `LineChart-*`), nessun avviso.
+- *Pagina*: `index.html` con `meta description` e favicon (`public/favicon.svg`, "F1" bianco su rosso, nessun logo ufficiale).
+- *Repository pubblico*: `README.md` (descrizione, note sui dati, avvio, struttura, nota "non ufficiale"), `LICENSE` MIT (`paolo-della-fera`). Controllo con grep su tutta la cronologia (`git log --all -p`): nessun segreto né chiave; l'unico dato personale è l'email dell'autore nei commit, lasciata com'è per scelta (niente email noreply). Le stash locali non vengono mai inviate.
+- *Vercel* (`vercel.json`): ogni percorso senza file statico corrispondente va a `index.html` (Vercel serve prima i file esistenti, `/assets/*` e `favicon.svg` compresi), quindi le rotte profonde e la 404 dell'app funzionano anche ricaricando. Preset Vite, nessuna variabile d'ambiente. Node richiesto ≥ 22.12 (Vitest 5).
+- *Ordine di pubblicazione*: commit e deploy con il repository ancora privato, prova del sito, poi URL e screenshot nel README, infine repository pubblico.
+
 ---
 
 ## Idee per dopo

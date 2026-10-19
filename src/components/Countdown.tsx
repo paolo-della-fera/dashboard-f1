@@ -18,9 +18,10 @@ export default function Countdown({ target, now }: CountdownProps) {
     <div>
       <dl className="flex gap-3" aria-hidden="true">
         {units.map((unit) => (
-          <div key={unit.label} className="min-w-14 rounded bg-white/15 px-2 py-1 text-center">
-            <dd className="text-2xl font-bold tabular-nums">{String(unit.value).padStart(2, '0')}</dd>
+          // dt before dd as HTML requires; the value is shown on top.
+          <div key={unit.label} className="flex min-w-14 flex-col-reverse rounded bg-white/15 px-2 py-1 text-center">
             <dt className="text-xs uppercase">{unit.label}</dt>
+            <dd className="text-2xl font-bold tabular-nums">{String(unit.value).padStart(2, '0')}</dd>
           </div>
         ))}
       </dl>

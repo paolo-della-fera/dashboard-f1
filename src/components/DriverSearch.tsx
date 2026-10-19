@@ -86,7 +86,7 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
             type="button"
             onClick={() => onSelect(null)}
             aria-label={`Rimuovi ${selectedName}`}
-            className="rounded border border-control bg-surface px-3 text-sm text-muted hover:text-fg"
+            className="min-h-11 min-w-11 rounded border border-control bg-surface text-sm text-muted hover:text-fg"
           >
             ×
           </button>
