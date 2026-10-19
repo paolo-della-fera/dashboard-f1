@@ -1,12 +1,28 @@
 # Dashboard F1
 
+> **Come è nato questo progetto**
+>
+> È il mio primo progetto realizzato insieme a un'intelligenza artificiale.
+> Il codice è stato scritto da Claude Code (Anthropic); il mio ruolo è stato
+> definire cosa costruire, scegliere tra le soluzioni proposte, approvare
+> ogni piano prima dell'esecuzione e verificare ogni fase nel browser.
+> Il percorso completo, con le decisioni prese fase per fase, è in [PIANO.md](PIANO.md).
+
 Dashboard web di Formula 1 con calendario, classifiche, risultati e un confronto testa a testa tra due piloti qualsiasi della storia, dal 1950 a oggi.
 
-**App online:** _in arrivo_
+**App online:** [dashboard-f1-chi.vercel.app](https://dashboard-f1-chi.vercel.app/calendario)
 
 > Progetto non ufficiale, non affiliato con Formula 1. Dati forniti da [Jolpica F1 API](https://github.com/jolpica/jolpica-f1).
 
-<!-- Screenshot: aggiunti dopo la pubblicazione -->
+![Calendario con la prossima gara e il conto alla rovescia](docs/screenshots/calendario.png)
+
+| Classifiche | Risultati |
+|---|---|
+| ![Andamento dei punti dei primi cinque piloti nel 2021](docs/screenshots/classifiche.png) | ![Risultati del Gran Premio di Singapore 2026](docs/screenshots/risultati.png) |
+
+| Testa a testa | Telefono, tema scuro |
+|---|---|
+| ![Confronto Senna–Prost](docs/screenshots/testa-a-testa.png) | <img src="docs/screenshots/telefono-scuro.jpg" alt="Andamento dei punti costruttori su telefono, tema scuro" width="220"> |
 
 ## Sezioni
 
@@ -58,7 +74,7 @@ Il piano di sviluppo con le scelte fatte in ogni fase è in [PIANO.md](PIANO.md)
 
 ## Pubblicazione
 
-L'app è pubblicata su Vercel. `vercel.json` rimanda tutte le rotte a `index.html`, così gli indirizzi come `/risultati/2025/1` funzionano anche aprendoli direttamente.
+L'app è pubblicata su Vercel ([dashboard-f1-chi.vercel.app](https://dashboard-f1-chi.vercel.app/calendario)) e si aggiorna a ogni push su `main`. `vercel.json` rimanda tutte le rotte a `index.html`, così gli indirizzi come `/risultati/2025/1` funzionano anche aprendoli direttamente.
 
 ## Licenza
 

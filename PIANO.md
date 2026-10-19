@@ -11,11 +11,11 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [x] Fase 5 – Testa a testa: dati e statistiche
 - [x] Fase 6 – Testa a testa: interfaccia e grafici
 - [x] Fase 6b – Animazioni
-- [ ] Fase 7 – Rifinitura e pubblicazione
+- [x] Fase 7 – Rifinitura e pubblicazione
   - [x] 7a – Pulizia del codice e robustezza
   - [x] 7b – Responsive
   - [x] 7c – Tema scuro e accessibilità
-  - [ ] 7d – Revisione finale e pubblicazione
+  - [x] 7d – Revisione finale e pubblicazione
 
 ---
 
@@ -277,6 +277,8 @@ Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell
 - *Repository pubblico*: `README.md` (descrizione, note sui dati, avvio, struttura, nota "non ufficiale"), `LICENSE` MIT (`paolo-della-fera`). Controllo con grep su tutta la cronologia (`git log --all -p`): nessun segreto né chiave; l'unico dato personale è l'email dell'autore nei commit, lasciata com'è per scelta (niente email noreply). Le stash locali non vengono mai inviate.
 - *Vercel* (`vercel.json`): ogni percorso senza file statico corrispondente va a `index.html` (Vercel serve prima i file esistenti, `/assets/*` e `favicon.svg` compresi), quindi le rotte profonde e la 404 dell'app funzionano anche ricaricando. Preset Vite, nessuna variabile d'ambiente. Node richiesto ≥ 22.12 (Vitest 5).
 - *Ordine di pubblicazione*: commit e deploy con il repository ancora privato, prova del sito, poi URL e screenshot nel README, infine repository pubblico.
+- *Online*: https://dashboard-f1-chi.vercel.app, ripubblicata da Vercel a ogni push su `main`. Verificato (19/10): rotte profonde e indirizzo inesistente rispondono con `index.html` (200), favicon e file JS serviti, Jolpica risponde con `access-control-allow-origin: *`; prova manuale da computer e da telefono.
+- *README*: nota "Come è nato questo progetto" (scritto con Claude Code), URL e screenshot in `docs/screenshots/` (quattro desktop in tema chiaro, uno da telefono in tema scuro, `.jpg` perché è una foto dello schermo del telefono).
 
 ---
 
