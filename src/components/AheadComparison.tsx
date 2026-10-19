@@ -20,7 +20,7 @@ export default function AheadComparison({ title, comparison, names, colors, note
   const aShare = total > 0 ? (comparison.aAhead / total) * 100 : 50
   return (
     <motion.div {...appear(index)}>
-      <h3 className="text-sm font-medium text-gray-700">{title}</h3>
+      <h3 className="text-sm font-medium text-fg-soft">{title}</h3>
       <p className="mt-1 flex justify-between gap-2 text-sm">
         <span>
           {names.a}{' '}
@@ -35,7 +35,7 @@ export default function AheadComparison({ title, comparison, names, colors, note
           {names.b}
         </span>
       </p>
-      <div aria-hidden="true" className="mt-1 flex h-3 overflow-hidden rounded bg-gray-200">
+      <div aria-hidden="true" className="mt-1 flex h-3 overflow-hidden rounded bg-track">
         {total > 0 && (
           <>
             {/* The split grows from the middle, in time with the counters. */}
@@ -50,7 +50,7 @@ export default function AheadComparison({ title, comparison, names, colors, note
         )}
       </div>
       {notes.map((note) => (
-        <p key={note} className="mt-1 text-xs text-gray-600">
+        <p key={note} className="mt-1 text-xs text-muted">
           {note}
         </p>
       ))}

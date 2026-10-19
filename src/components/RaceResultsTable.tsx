@@ -30,7 +30,7 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
   return (
     <div className="mt-4 overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-300 text-gray-600">
+        <thead className="border-b border-line-strong text-muted">
           <tr>
             <th scope="col" className="px-2 py-2">Pos.</th>
             <th scope="col" className="px-2 py-2">Pilota</th>
@@ -55,11 +55,11 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
             const fastest = isFastestLap(result)
             return (
               // 1950s shared drives: the same driver can appear twice in a race.
-              <motion.tr key={`${index}-${result.Driver.driverId}`} className="border-b border-gray-200" {...appear(index)}>
+              <motion.tr key={`${index}-${result.Driver.driverId}`} className="border-b border-line" {...appear(index)}>
                 <td className="px-2 py-2 tabular-nums">{resultPositionLabel(result)}</td>
                 <td className="px-2 py-2 font-medium sm:whitespace-nowrap">
                   {result.Driver.givenName} {result.Driver.familyName}
-                  <span className="block text-xs font-normal text-gray-500 sm:hidden">{result.Constructor.name}</span>
+                  <span className="block text-xs font-normal text-subtle sm:hidden">{result.Constructor.name}</span>
                 </td>
                 <td className="hidden px-2 py-2 whitespace-nowrap sm:table-cell">{result.Constructor.name}</td>
                 <td className="px-2 py-2 text-right tabular-nums">{gridLabel(result)}</td>
@@ -71,12 +71,12 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
                 {showFastestLap && (
                   <td className="hidden px-2 py-2 tabular-nums whitespace-nowrap sm:table-cell">
                     {lapTime ? (
-                      <span className={fastest ? 'rounded bg-purple-100 px-1.5 py-0.5 font-semibold text-purple-800' : ''}>
+                      <span className={fastest ? 'rounded bg-purple-100 px-1.5 py-0.5 font-semibold text-purple-800 dark:bg-purple-950 dark:text-purple-200' : ''}>
                         {lapTime}
                         {fastest && <span className="sr-only"> (giro più veloce)</span>}
                       </span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-subtle">—</span>
                     )}
                   </td>
                 )}
@@ -85,10 +85,10 @@ export default function RaceResultsTable({ results }: RaceResultsTableProps) {
           })}
         </tbody>
       </table>
-      {legend.length > 0 && <p className="mt-2 text-xs text-gray-600">{legend.join(' · ')}</p>}
+      {legend.length > 0 && <p className="mt-2 text-xs text-muted">{legend.join(' · ')}</p>}
       {showFastestLap && (
-        <p className="mt-1 hidden text-xs text-gray-600 sm:block">
-          <span className="rounded bg-purple-100 px-1.5 py-0.5 font-semibold text-purple-800">Viola</span> = giro più
+        <p className="mt-1 hidden text-xs text-muted sm:block">
+          <span className="rounded bg-purple-100 px-1.5 py-0.5 font-semibold text-purple-800 dark:bg-purple-950 dark:text-purple-200">Viola</span> = giro più
           veloce della gara
         </p>
       )}

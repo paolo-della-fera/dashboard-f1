@@ -9,16 +9,16 @@ export default function PointsTooltip({ active, payload }: PointsTooltipProps) {
   const row = payload[0].payload as ProgressionRow
   const entries = [...payload].sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0))
   return (
-    <div className="rounded border border-gray-300 bg-white px-3 py-2 text-xs shadow">
-      <p className="mb-1 font-semibold text-gray-900">
+    <div className="rounded border border-line-strong bg-surface px-3 py-2 text-xs shadow">
+      <p className="mb-1 font-semibold text-fg">
         {row.label} · {row.raceName}
       </p>
       <ul>
         {entries.map((entry) => (
-          <li key={String(entry.name)} className="flex items-center gap-2 text-gray-700">
+          <li key={String(entry.name)} className="flex items-center gap-2 text-fg-soft">
             <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full" style={{ background: entry.color }} />
             <span className="flex-1">{entry.name}</span>
-            <span className="tabular-nums text-gray-900">{formatPoints(Number(entry.value ?? 0))}</span>
+            <span className="tabular-nums text-fg">{formatPoints(Number(entry.value ?? 0))}</span>
           </li>
         ))}
       </ul>

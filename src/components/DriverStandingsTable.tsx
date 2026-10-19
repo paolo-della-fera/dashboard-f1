@@ -13,7 +13,7 @@ export default function DriverStandingsTable({ standings }: DriverStandingsTable
   return (
     <div className="mt-4 overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-300 text-gray-600">
+        <thead className="border-b border-line-strong text-muted">
           <tr>
             <th scope="col" className="px-2 py-2">Pos.</th>
             <th scope="col" className="px-2 py-2">Pilota</th>
@@ -24,7 +24,7 @@ export default function DriverStandingsTable({ standings }: DriverStandingsTable
         </thead>
         <tbody>
           {standings.map((standing, index) => (
-            <motion.tr key={standing.Driver.driverId} className="border-b border-gray-200" {...appear(index)}>
+            <motion.tr key={standing.Driver.driverId} className="border-b border-line" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{positionLabel(standing)}</td>
               <td className="px-2 py-2 font-medium">
                 {standing.Driver.givenName} {standing.Driver.familyName}
@@ -40,7 +40,7 @@ export default function DriverStandingsTable({ standings }: DriverStandingsTable
           ))}
         </tbody>
       </table>
-      {hasExcluded && <p className="mt-2 text-xs text-gray-600">SQ = squalificato dal campionato.</p>}
+      {hasExcluded && <p className="mt-2 text-xs text-muted">SQ = squalificato dal campionato.</p>}
     </div>
   )
 }

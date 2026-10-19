@@ -9,11 +9,11 @@ export default function RaceHeader({ race }: RaceHeaderProps) {
   const { circuitName, Location } = race.Circuit
   return (
     <header className="mt-4">
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted">
         Stagione {race.season} · Round {race.round}
       </p>
       <h2 className="text-xl font-semibold">{race.raceName}</h2>
-      <p className="text-sm text-gray-700">
+      <p className="text-sm text-fg-soft">
         {circuitName} · {Location.locality}, {Location.country} · {formatRaceDate(race)}
       </p>
     </header>

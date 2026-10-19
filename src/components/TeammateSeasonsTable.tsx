@@ -16,10 +16,10 @@ export default function TeammateSeasonsTable({ seasons, names }: TeammateSeasons
   return (
     <div className="mt-3 overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <caption className="caption-bottom pt-2 text-left text-xs text-gray-600">
+        <caption className="caption-bottom pt-2 text-left text-xs text-muted">
           Posizione e punti nel campionato della stessa stagione: qui i punti sono confrontabili.
         </caption>
-        <thead className="border-b border-gray-300 text-gray-600">
+        <thead className="border-b border-line-strong text-muted">
           <tr>
             <th scope="col" className="px-2 py-2">Stagione</th>
             <th scope="col" className="px-2 py-2">Team</th>
@@ -30,7 +30,7 @@ export default function TeammateSeasonsTable({ seasons, names }: TeammateSeasons
         </thead>
         <tbody>
           {seasons.map((season, index) => (
-            <motion.tr key={season.season} className="border-b border-gray-200" {...appear(index)}>
+            <motion.tr key={season.season} className="border-b border-line" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{season.season}</td>
               <td className="px-2 py-2">{season.teams.join(' / ')}</td>
               <td className="px-2 py-2 text-right tabular-nums">{season.races}</td>

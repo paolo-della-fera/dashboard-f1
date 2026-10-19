@@ -29,13 +29,19 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
     setQuery('')
   }
 
+  // Arrow keys move the active option: keep it visible inside the scrolling list.
+  function moveActive(index: number) {
+    setActive(index)
+    document.getElementById(`${id}-option-${index}`)?.scrollIntoView?.({ block: 'nearest' })
+  }
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'ArrowDown' && open) {
       event.preventDefault()
-      setActive((activeIndex + 1) % matches.length)
+      moveActive((activeIndex + 1) % matches.length)
     } else if (event.key === 'ArrowUp' && open) {
       event.preventDefault()
-      setActive((activeIndex - 1 + matches.length) % matches.length)
+      moveActive((activeIndex - 1 + matches.length) % matches.length)
     } else if (event.key === 'Enter' && open) {
       event.preventDefault()
       choose(matches[activeIndex])
@@ -47,7 +53,7 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
 
   return (
     <div className="relative">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="block text-sm font-medium text-fg-soft">
         {label}
       </label>
       <div className="mt-1 flex gap-1">
@@ -73,14 +79,14 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
             setActive(0)
           }}
           onKeyDown={handleKeyDown}
-          className="w-full min-w-0 rounded border border-gray-300 bg-white px-3 py-2 text-sm disabled:bg-gray-100"
+          className="w-full min-w-0 rounded border border-control bg-surface px-3 py-2 text-sm disabled:bg-sunken"
         />
         {selectedName && !editing && (
           <button
             type="button"
             onClick={() => onSelect(null)}
             aria-label={`Rimuovi ${selectedName}`}
-            className="rounded border border-gray-300 bg-white px-3 text-sm text-gray-600 hover:text-gray-900"
+            className="rounded border border-control bg-surface px-3 text-sm text-muted hover:text-fg"
           >
             ×
           </button>
@@ -91,7 +97,7 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
         role="listbox"
         aria-label={label}
         hidden={!open}
-        className="absolute z-10 mt-1 max-h-72 w-full overflow-y-auto rounded border border-gray-300 bg-white py-1 text-sm shadow"
+        className="absolute z-10 mt-1 max-h-72 w-full overflow-y-auto rounded border border-line-strong bg-surface py-1 text-sm shadow"
       >
         {matches.map((driver, index) => {
           const details = driverDetails(driver)
@@ -108,17 +114,17 @@ export default function DriverSearch({ label, drivers, selectedName, disabled = 
               }}
               onMouseEnter={() => setActive(index)}
               className={`flex cursor-pointer justify-between gap-2 px-3 py-1.5 ${
-                index === activeIndex ? 'bg-red-50 text-red-900' : ''
+                index === activeIndex ? 'bg-accent-soft text-accent-strong' : ''
               }`}
             >
               <span>{driverLabel(driver)}</span>
-              {details && <span className="text-xs text-gray-500">{details}</span>}
+              {details && <span className="text-xs text-subtle">{details}</span>}
             </li>
           )
         })}
       </ul>
       {editing && query.trim() !== '' && matches.length === 0 && (
-        <p className="mt-1 text-xs text-gray-600">Nessun pilota trovato.</p>
+        <p className="mt-1 text-xs text-muted">Nessun pilota trovato.</p>
       )}
     </div>
   )

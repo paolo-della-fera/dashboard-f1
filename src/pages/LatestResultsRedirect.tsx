@@ -32,13 +32,13 @@ export default function LatestResultsRedirect() {
     <section>
       <h1 className="text-2xl font-bold">Risultati</h1>
       {error ? (
-        <p role="alert" className="mt-4 text-red-700">
+        <p role="alert" className="mt-4 text-accent">
           {apiErrorMessage(error)}
         </p>
       ) : pending ? (
-        <p className="mt-4 text-gray-600">Caricamento dell'ultimo Gran Premio…</p>
+        <p className="mt-4 text-muted">Caricamento dell'ultimo Gran Premio…</p>
       ) : (
-        <p className="mt-4 text-gray-600">Nessun Gran Premio disputato nella stagione {season}.</p>
+        <p className="mt-4 text-muted">Nessun Gran Premio disputato nella stagione {season}.</p>
       )}
     </section>
   )

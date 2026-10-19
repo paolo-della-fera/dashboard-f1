@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard F1</title>
+    <script>
+      // Theme before the first paint (no white flash in dark mode). Same rule as
+      // resolveTheme in src/lib/theme.ts and the same storage key: keep them in sync.
+      ;(function () {
+        var preference = 'system'
+        try {
+          preference = localStorage.getItem('f1-theme') || 'system'
+        } catch (e) {}
+        var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        var dark = preference === 'dark' || (preference !== 'light' && systemDark)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

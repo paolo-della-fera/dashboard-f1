@@ -20,14 +20,14 @@ export default function RacePicker({ seasons, season, races, round, onSeasonChan
       <SeasonSelect seasons={seasons} value={season} onChange={onSeasonChange} />
       {races.length > 0 && (
         <div className="flex items-center gap-2">
-          <label htmlFor={id} className="text-sm font-medium text-gray-700">
+          <label htmlFor={id} className="text-sm font-medium text-fg-soft">
             Gran Premio
           </label>
           <select
             id={id}
             value={inList ? round : ''}
             onChange={(event) => onRoundChange(Number(event.target.value))}
-            className="max-w-56 rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+            className="max-w-56 rounded border border-control bg-surface px-2 py-1 text-sm"
           >
             {!inList && <option value="">—</option>}
             {races.map((race) => (

@@ -9,7 +9,7 @@ interface RaceNavigationProps {
 }
 
 const linkClass =
-  'inline-flex min-h-11 max-w-[48%] items-center gap-1 rounded border border-gray-300 px-3 py-1.5 text-sm transition-colors duration-150 hover:border-red-700 hover:text-red-700'
+  'inline-flex min-h-11 max-w-[48%] items-center gap-1 rounded border border-line-strong px-3 py-1.5 text-sm transition-colors duration-150 hover:border-accent hover:text-accent'
 
 /** Links to the previous and next Grand Prix of the season, keeping the selected session. */
 export default function RaceNavigation({ previous, next, search }: RaceNavigationProps) {

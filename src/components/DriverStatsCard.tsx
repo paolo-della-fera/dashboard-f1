@@ -70,17 +70,17 @@ export default function DriverStatsCard({ name, stats, side, color, leaders }: D
 
   return (
     <motion.article
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow duration-150 hover:shadow-md"
+      className="rounded-lg border border-line bg-surface p-4 shadow-sm transition duration-150 hover:shadow-md dark:hover:border-line-strong"
       style={{ borderTop: `4px solid ${color}` }}
       {...appear(side === 'a' ? 0 : 1)}
     >
       <h2 className="text-lg font-semibold">{name}</h2>
       {stats.teams.length > 0 && (
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-muted">
           {stats.teams.map((team) => `${team.name} (${formatSeasons(team.seasons)})`).join(' · ')}
         </p>
       )}
-      <dl className="mt-3 divide-y divide-gray-100 text-sm">
+      <dl className="mt-3 divide-y divide-line text-sm">
         {rows.map((row) => {
           const ahead = row.lead !== undefined && leaders?.[row.lead] === side
           return (
@@ -89,13 +89,13 @@ export default function DriverStatsCard({ name, stats, side, color, leaders }: D
               className={`flex items-baseline justify-between gap-3 py-1.5 pl-2 ${ahead ? 'font-semibold' : ''}`}
               style={{ borderLeft: `3px solid ${ahead ? color : 'transparent'}` }}
             >
-              <dt className="text-gray-700">{row.label}</dt>
+              <dt className="text-fg-soft">{row.label}</dt>
               <dd className="text-right">
-                <span className="tabular-nums text-gray-900">
+                <span className="tabular-nums text-fg">
                   {row.count ? <CountUp value={row.count.value} format={row.count.format} /> : row.value}
                 </span>
                 {ahead && <span className="sr-only"> (in vantaggio)</span>}
-                {row.note && <span className="block text-xs font-normal text-gray-500">{row.note}</span>}
+                {row.note && <span className="block text-xs font-normal text-subtle">{row.note}</span>}
               </dd>
             </div>
           )

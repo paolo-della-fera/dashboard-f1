@@ -13,7 +13,7 @@ export default function ConstructorStandingsTable({ standings }: ConstructorStan
   return (
     <div className="mt-4 overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-300 text-gray-600">
+        <thead className="border-b border-line-strong text-muted">
           <tr>
             <th scope="col" className="px-2 py-2">Pos.</th>
             <th scope="col" className="px-2 py-2">Team</th>
@@ -23,7 +23,7 @@ export default function ConstructorStandingsTable({ standings }: ConstructorStan
         </thead>
         <tbody>
           {standings.map((standing, index) => (
-            <motion.tr key={standing.Constructor.constructorId} className="border-b border-gray-200" {...appear(index)}>
+            <motion.tr key={standing.Constructor.constructorId} className="border-b border-line" {...appear(index)}>
               <td className="px-2 py-2 tabular-nums">{positionLabel(standing)}</td>
               <td className="px-2 py-2 font-medium">{standing.Constructor.name}</td>
               <td className="px-2 py-2 text-right tabular-nums">
@@ -36,7 +36,7 @@ export default function ConstructorStandingsTable({ standings }: ConstructorStan
           ))}
         </tbody>
       </table>
-      {hasExcluded && <p className="mt-2 text-xs text-gray-600">SQ = squalificato dal campionato.</p>}
+      {hasExcluded && <p className="mt-2 text-xs text-muted">SQ = squalificato dal campionato.</p>}
     </div>
   )
 }

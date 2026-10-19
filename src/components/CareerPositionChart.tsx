@@ -1,5 +1,6 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useReducedMotion } from 'motion/react'
+import { useChartColors } from '../hooks/useTheme.ts'
 import type { CareerPositionRow } from '../lib/headToHeadView.ts'
 import { CHART_ANIMATION_MS } from '../lib/motion.ts'
 import CareerPositionTooltip from './CareerPositionTooltip.tsx'
@@ -14,8 +15,11 @@ interface CareerPositionChartProps {
 /** Championship position by year of career; position 1 at the top. */
 export default function CareerPositionChart({ rows, names, colors }: CareerPositionChartProps) {
   const reduceMotion = useReducedMotion()
+  const chrome = useChartColors()
   return (
-    <div>
+    <figure
+      aria-label={`Grafico a linee: posizione in campionato per anno di carriera di ${names.a} e ${names.b}. Le posizioni anno per anno sono nelle tabelle "stagione per stagione".`}
+    >
       <ComparisonLegend
         items={[
           { name: names.a, color: colors.a },
@@ -26,21 +30,21 @@ export default function CareerPositionChart({ rows, names, colors }: CareerPosit
       <div className="mt-2 h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
-            <CartesianGrid stroke="#e5e5e3" vertical={false} />
+            <CartesianGrid stroke={chrome.grid} vertical={false} />
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 12, fill: '#52514e' }}
-              stroke="#c3c2b7"
+              tick={{ fontSize: 12, fill: chrome.tick }}
+              stroke={chrome.axis}
               interval="preserveStartEnd"
               minTickGap={8}
-              label={{ value: 'Anno di carriera', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#52514e' }}
+              label={{ value: 'Anno di carriera', position: 'insideBottom', offset: -10, fontSize: 12, fill: chrome.tick }}
             />
             <YAxis
               reversed
               allowDecimals={false}
               domain={[1, 'dataMax']}
-              tick={{ fontSize: 12, fill: '#52514e' }}
-              stroke="#c3c2b7"
+              tick={{ fontSize: 12, fill: chrome.tick }}
+              stroke={chrome.axis}
               width={36}
             />
             <Tooltip content={<CareerPositionTooltip names={names} colors={colors} />} />
@@ -63,6 +67,6 @@ export default function CareerPositionChart({ rows, names, colors }: CareerPosit
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </figure>
   )
 }

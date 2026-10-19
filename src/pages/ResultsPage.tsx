@@ -55,11 +55,11 @@ export default function ResultsPage() {
 
   function renderSession() {
     if (sessionQuery.isPending) {
-      return <p className="mt-4 text-gray-600">Caricamento: {SESSION_LABELS[session].toLowerCase()}…</p>
+      return <p className="mt-4 text-muted">Caricamento: {SESSION_LABELS[session].toLowerCase()}…</p>
     }
     if (sessionQuery.isError) {
       return (
-        <p role="alert" className="mt-4 text-red-700">
+        <p role="alert" className="mt-4 text-accent">
           {apiErrorMessage(sessionQuery.error)}
         </p>
       )
@@ -69,7 +69,7 @@ export default function ResultsPage() {
       const results = data?.QualifyingResults ?? []
       if (results.length === 0) {
         return (
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-muted">
             Qualifiche non disponibili per questo Gran Premio. La posizione di partenza è nella colonna Griglia
             della gara.
           </p>
@@ -80,7 +80,7 @@ export default function ResultsPage() {
     const results = (session === 'race' ? data?.Results : data?.SprintResults) ?? []
     if (results.length === 0) {
       return (
-        <p className="mt-4 text-gray-600">
+        <p className="mt-4 text-muted">
           {session === 'race' ? 'Risultati della gara' : 'Risultati della sprint'} non ancora disponibili.
         </p>
       )
@@ -105,18 +105,18 @@ export default function ResultsPage() {
       </div>
 
       {(!parsed || (calendar.isSuccess && !race)) && (
-        <p className="mt-4 text-gray-600">
+        <p className="mt-4 text-muted">
           Gran Premio non trovato.{' '}
-          <Link to="/risultati" className="text-red-700 underline hover:text-red-900">
+          <Link to="/risultati" className="text-accent underline hover:text-accent-strong">
             Vai all'ultimo Gran Premio disputato
           </Link>
         </p>
       )}
 
-      {parsed && calendar.isPending && <p className="mt-4 text-gray-600">Caricamento del Gran Premio…</p>}
+      {parsed && calendar.isPending && <p className="mt-4 text-muted">Caricamento del Gran Premio…</p>}
 
       {calendar.isError && (
-        <p role="alert" className="mt-4 text-red-700">
+        <p role="alert" className="mt-4 text-accent">
           {apiErrorMessage(calendar.error)}
         </p>
       )}
@@ -132,7 +132,7 @@ export default function ResultsPage() {
               </div>
             </>
           ) : (
-            <p className="mt-4 text-gray-600">Questo Gran Premio non si è ancora disputato.</p>
+            <p className="mt-4 text-muted">Questo Gran Premio non si è ancora disputato.</p>
           )}
           <RaceNavigation previous={previous} next={next} search={search} />
         </>

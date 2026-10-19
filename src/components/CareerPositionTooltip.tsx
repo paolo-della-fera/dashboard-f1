@@ -21,14 +21,14 @@ export default function CareerPositionTooltip({ active, payload, names, colors }
     { name: names.b, color: colors.b, point: row.seasonB },
   ]
   return (
-    <div className="rounded border border-gray-300 bg-white px-3 py-2 text-xs shadow">
-      <p className="mb-1 font-semibold text-gray-900">Anno {row.year} di carriera</p>
+    <div className="rounded border border-line-strong bg-surface px-3 py-2 text-xs shadow">
+      <p className="mb-1 font-semibold text-fg">Anno {row.year} di carriera</p>
       <ul>
         {entries.map((entry) => (
-          <li key={entry.name} className="flex items-center gap-2 text-gray-700">
+          <li key={entry.name} className="flex items-center gap-2 text-fg-soft">
             <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full" style={{ background: entry.color }} />
             <span className="flex-1">{entry.name}</span>
-            <span className="tabular-nums text-gray-900">{describe(entry.point)}</span>
+            <span className="tabular-nums text-fg">{describe(entry.point)}</span>
           </li>
         ))}
       </ul>

@@ -35,7 +35,10 @@ describe('App', () => {
     renderApp()
 
     await user.click(screen.getByRole('link', { name: 'Classifiche' }))
-    expect(await screen.findByRole('heading', { level: 1, name: 'Classifiche' })).toBeInTheDocument()
+    // First load of the lazy Standings chunk (Recharts): ~1 s when the whole suite runs in parallel.
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Classifiche' }, { timeout: 5000 }),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'Testa a testa' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Testa a testa' })).toBeInTheDocument()

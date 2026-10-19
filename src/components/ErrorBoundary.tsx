@@ -34,8 +34,8 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   render() {
     if (!this.state.error) return this.props.children
     return (
-      <div role="alert" className="rounded border border-red-200 bg-white p-4">
-        <p className="font-medium text-red-700">Si è verificato un errore imprevisto.</p>
+      <div role="alert" className="rounded border border-red-200 bg-surface p-4 dark:border-red-900">
+        <p className="font-medium text-accent">Si è verificato un errore imprevisto.</p>
         <div className="mt-3 flex flex-wrap items-center gap-4">
           <button
             type="button"
@@ -45,7 +45,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             Ricarica la pagina
           </button>
           {/* Plain link: it also works when the router itself is what failed. */}
-          <a href="/calendario" className="text-sm font-medium text-red-700 underline hover:text-red-900">
+          <a href="/calendario" className="text-sm font-medium text-accent underline hover:text-accent-strong">
             Vai al calendario
           </a>
         </div>

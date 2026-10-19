@@ -14,9 +14,9 @@ export default function RawDataBlock({ title, queryKey, queryFn }: RawDataBlockP
   return (
     <section className="mt-6">
       <h2 className="text-lg font-semibold">{title}</h2>
-      {query.isPending && <p className="mt-2 text-gray-600">Caricamento…</p>}
+      {query.isPending && <p className="mt-2 text-muted">Caricamento…</p>}
       {query.isError && (
-        <p role="alert" className="mt-2 text-red-700">
+        <p role="alert" className="mt-2 text-accent">
           {apiErrorMessage(query.error)}
         </p>
       )}

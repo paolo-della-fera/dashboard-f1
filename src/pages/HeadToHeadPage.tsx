@@ -11,10 +11,10 @@ import StatBarsChart from '../components/StatBarsChart.tsx'
 import TeammateSeasonsTable from '../components/TeammateSeasonsTable.tsx'
 import { useCareerProgress } from '../hooks/careerProgress.ts'
 import { useCalendar } from '../hooks/useCalendar.ts'
+import { useChartColors } from '../hooks/useTheme.ts'
 import { useAllDrivers, useDriverCareer } from '../hooks/useHeadToHead.ts'
 import { useNow } from '../hooks/useNow.ts'
 import { apiErrorMessage } from '../lib/apiErrorMessage.ts'
-import { seriesColor } from '../lib/chartColors.ts'
 import { driverStats, headToHead, lastConcludedSeason, type RaceComparison, type QualifyingComparison } from '../lib/headToHead.ts'
 import {
   careerPositionRows,
@@ -31,7 +31,6 @@ import {
 import type { Driver } from '../types/jolpica.ts'
 
 const PARAMS: Record<Side, string> = { a: 'pilota1', b: 'pilota2' }
-const COLORS = { a: seriesColor(0), b: seriesColor(1) }
 
 function matchupSearch(matchup: Matchup): string {
   return `?${PARAMS.a}=${encodeURIComponent(matchup.a.driverId)}&${PARAMS.b}=${encodeURIComponent(matchup.b.driverId)}`
@@ -51,6 +50,7 @@ function qualifyingNotes(comparison: QualifyingComparison): string[] {
 
 export default function HeadToHeadPage() {
   const now = useNow(60_000)
+  const colors = useChartColors().pair
   const currentYear = new Date(now).getFullYear()
   const [searchParams, setSearchParams] = useSearchParams()
   const ids: Record<Side, string | null> = {
@@ -119,7 +119,7 @@ export default function HeadToHeadPage() {
   return (
     <section>
       <h1 className="text-2xl font-bold">Testa a testa</h1>
-      <p className="mt-1 text-sm text-gray-600">Confronta due piloti qualsiasi della storia della Formula 1, dal 1950.</p>
+      <p className="mt-1 text-sm text-muted">Confronta due piloti qualsiasi della storia della Formula 1, dal 1950.</p>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {(['a', 'b'] as const).map((side) => (
@@ -134,21 +134,21 @@ export default function HeadToHeadPage() {
         ))}
       </div>
 
-      {driversQuery.isPending && <p className="mt-2 text-sm text-gray-600">Caricamento dell'elenco dei piloti…</p>}
+      {driversQuery.isPending && <p className="mt-2 text-sm text-muted">Caricamento dell'elenco dei piloti…</p>}
       {driversQuery.isError && (
-        <p role="alert" className="mt-2 text-sm text-red-700">
+        <p role="alert" className="mt-2 text-sm text-accent">
           {apiErrorMessage(driversQuery.error)}
         </p>
       )}
 
       {!ids.a && !ids.b && (
         <>
-          <p className="mt-6 text-gray-600">Scegli due piloti da confrontare, oppure parti da un confronto famoso.</p>
+          <p className="mt-6 text-muted">Scegli due piloti da confrontare, oppure parti da un confronto famoso.</p>
           <FamousMatchups matchups={FAMOUS_MATCHUPS} searchFor={matchupSearch} />
         </>
       )}
 
-      {sameDriver && <p className="mt-6 text-gray-600">Scegli due piloti diversi.</p>}
+      {sameDriver && <p className="mt-6 text-muted">Scegli due piloti diversi.</p>}
 
       {(ids.a || ids.b) && !sameDriver && (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -156,21 +156,21 @@ export default function HeadToHeadPage() {
             const id = ids[side]
             if (!id) {
               return (
-                <p key={side} className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+                <p key={side} className="rounded-lg border border-dashed border-line-strong p-4 text-sm text-muted">
                   Scegli il {side === 'a' ? 'primo' : 'secondo'} pilota.
                 </p>
               )
             }
             if (notFound[side]) {
               return (
-                <p key={side} role="alert" className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-red-700">
+                <p key={side} role="alert" className="rounded-lg border border-line bg-surface p-4 text-sm text-accent">
                   Pilota non trovato.
                 </p>
               )
             }
             if (query.isError) {
               return (
-                <p key={side} role="alert" className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-red-700">
+                <p key={side} role="alert" className="rounded-lg border border-line bg-surface p-4 text-sm text-accent">
                   {fullNames[side]}: {apiErrorMessage(query.error)}
                 </p>
               )
@@ -182,7 +182,7 @@ export default function HeadToHeadPage() {
                 name={fullNames[side]}
                 stats={stats}
                 side={side}
-                color={COLORS[side]}
+                color={colors[side]}
                 leaders={leaders}
               />
             )
@@ -197,7 +197,7 @@ export default function HeadToHeadPage() {
               Vittorie, podi, pole e titoli
             </h2>
             <div className="mt-2">
-              <StatBarsChart rows={countBars(statsA, statsB)} names={names} colors={COLORS} />
+              <StatBarsChart rows={countBars(statsA, statsB)} names={names} colors={colors} />
             </div>
           </section>
 
@@ -205,12 +205,12 @@ export default function HeadToHeadPage() {
             <h2 id="h2h-rates" className="text-lg font-semibold">
               Percentuali per gara
             </h2>
-            <p className="text-sm text-gray-600">Vittorie, podi e pole divisi per le gare disputate.</p>
+            <p className="text-sm text-muted">Vittorie, podi e pole divisi per le gare disputate.</p>
             <div className="mt-2">
               <StatBarsChart
                 rows={rateBars(statsA, statsB)}
                 names={names}
-                colors={COLORS}
+                colors={colors}
                 formatValue={(value) => formatRate(value / 100)}
               />
             </div>
@@ -220,7 +220,7 @@ export default function HeadToHeadPage() {
             <h2 id="h2h-career" className="text-lg font-semibold">
               Posizione in campionato per anno di carriera
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted">
               Anno 1 = prima stagione di ciascuno, così si confrontano carriere di epoche diverse. I punti mancanti sono
               stagioni senza posizione (pause, squalifica, non classificato).
             </p>
@@ -228,7 +228,7 @@ export default function HeadToHeadPage() {
               <CareerPositionChart
                 rows={careerPositionRows(statsA.seasonBySeason, statsB.seasonBySeason)}
                 names={names}
-                colors={COLORS}
+                colors={colors}
               />
             </div>
           </section>
@@ -238,10 +238,10 @@ export default function HeadToHeadPage() {
               In pista insieme
             </h2>
             {comparison.racesTogether === 0 ? (
-              <p className="mt-1 text-sm text-gray-600">Non hanno mai corso nella stessa gara.</p>
+              <p className="mt-1 text-sm text-muted">Non hanno mai corso nella stessa gara.</p>
             ) : (
               <>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-muted">
                   {comparison.racesTogether} gare disputate da entrambi: chi è arrivato davanti all'altro.
                 </p>
                 <div className="mt-3 grid gap-4 md:grid-cols-2">
@@ -249,7 +249,7 @@ export default function HeadToHeadPage() {
                     title="In gara"
                     comparison={comparison.race}
                     names={names}
-                    colors={COLORS}
+                    colors={colors}
                     notes={raceNotes(comparison.race)}
                   />
                   <AheadComparison
@@ -257,7 +257,7 @@ export default function HeadToHeadPage() {
                     index={1}
                     comparison={comparison.qualifying}
                     names={names}
-                    colors={COLORS}
+                    colors={colors}
                     notes={qualifyingNotes(comparison.qualifying)}
                   />
                 </div>
@@ -270,7 +270,7 @@ export default function HeadToHeadPage() {
               <h2 id="h2h-teammates" className="text-lg font-semibold">
                 Da compagni di squadra
               </h2>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-muted">
                 {comparison.teammates.races} gare con la stessa scuderia.
               </p>
               <div className="mt-3 grid gap-4 md:grid-cols-2">
@@ -278,7 +278,7 @@ export default function HeadToHeadPage() {
                   title="In gara"
                   comparison={comparison.teammates.race}
                   names={names}
-                  colors={COLORS}
+                  colors={colors}
                   notes={raceNotes(comparison.teammates.race)}
                 />
                 <AheadComparison
@@ -286,7 +286,7 @@ export default function HeadToHeadPage() {
                   index={1}
                   comparison={comparison.teammates.qualifying}
                   names={names}
-                  colors={COLORS}
+                  colors={colors}
                   notes={qualifyingNotes(comparison.teammates.qualifying)}
                 />
               </div>
@@ -298,7 +298,7 @@ export default function HeadToHeadPage() {
             <h2 id="h2h-seasons" className="text-lg font-semibold">
               Stagione per stagione
             </h2>
-            <p role="note" className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <p role="note" className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
               <strong>Attenzione:</strong> i punti non sono confrontabili tra epoche diverse, perché il sistema di
               punteggio della F1 è cambiato molte volte. Per confrontare piloti di epoche diverse usa vittorie, podi, pole
               e percentuali.

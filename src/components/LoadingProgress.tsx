@@ -8,7 +8,7 @@ interface LoadingProgressProps {
 /** Loading message with the request count, since a first load can take a while. */
 export default function LoadingProgress({ name, progress }: LoadingProgressProps) {
   return (
-    <div role="status" className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
+    <div role="status" className="rounded-lg border border-line bg-surface p-4 text-sm text-fg-soft">
       <p>
         Caricamento della carriera di {name}… il primo caricamento può richiedere qualche secondo.
       </p>
@@ -21,7 +21,7 @@ export default function LoadingProgress({ name, progress }: LoadingProgressProps
             value={progress.done}
             max={progress.total}
             aria-label={`Avanzamento per ${name}`}
-            className="mt-1 h-2 w-full accent-red-700"
+            className="mt-1 h-2 w-full accent-accent"
           />
         </>
       )}

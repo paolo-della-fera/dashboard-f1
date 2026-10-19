@@ -16,7 +16,7 @@ export default function NextRaceCard({ race, now }: NextRaceCardProps) {
   return (
     <motion.section
       aria-labelledby="next-race-title"
-      className="mt-6 rounded-lg bg-red-700 p-5 text-white shadow transition-shadow duration-150 hover:shadow-lg"
+      className="mt-6 rounded-lg bg-red-700 p-5 text-white shadow transition-shadow duration-150 hover:shadow-lg dark:hover:ring-2 dark:hover:ring-red-400/60"
       {...appear()}
     >
       <p className="text-sm font-medium uppercase tracking-wide text-red-100">

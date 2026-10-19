@@ -6,7 +6,7 @@ export default function DevDataPage() {
   return (
     <section>
       <h1 className="text-2xl font-bold">Dati grezzi (prova)</h1>
-      <p className="mt-2 text-gray-600">Pagina di verifica del livello dati, stagione in corso.</p>
+      <p className="mt-2 text-muted">Pagina di verifica del livello dati, stagione in corso.</p>
       <RawDataBlock
         title="Calendario"
         queryKey={['dev', 'schedule', 'current']}

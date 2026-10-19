@@ -28,23 +28,23 @@ export default function CalendarPage() {
         <SeasonSelect seasons={seasonOptions(currentYear)} value={season} onChange={changeSeason} />
       </div>
 
-      {query.isPending && <p className="mt-4 text-gray-600">Caricamento del calendario…</p>}
+      {query.isPending && <p className="mt-4 text-muted">Caricamento del calendario…</p>}
 
       {query.isError && (
-        <p role="alert" className="mt-4 text-red-700">
+        <p role="alert" className="mt-4 text-accent">
           {apiErrorMessage(query.error)}
         </p>
       )}
 
       {query.isSuccess && races.length === 0 && (
-        <p className="mt-4 text-gray-600">Calendario della stagione {season} non ancora disponibile.</p>
+        <p className="mt-4 text-muted">Calendario della stagione {season} non ancora disponibile.</p>
       )}
 
       {query.isSuccess && races.length > 0 && (
         <>
           {nextRace && <NextRaceCard race={nextRace} now={now} />}
           {!nextRace && season === currentYear && (
-            <p className="mt-4 text-gray-600">La stagione {season} è conclusa.</p>
+            <p className="mt-4 text-muted">La stagione {season} è conclusa.</p>
           )}
           <RaceList races={races} now={now} nextRace={nextRace} />
         </>

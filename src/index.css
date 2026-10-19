@@ -1,5 +1,81 @@
 @import "tailwindcss";
 
+/* `dark:` follows the theme set on <html> (system preference or the header toggle), not the media query. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Semantic colour tokens: components use `bg-surface`, `text-muted`, ... and both
+ * themes are defined here. Text tokens are at least 4.5:1 (WCAG AA) on page,
+ * surface, sunken and accent-soft in both themes; ratios are listed in PIANO.md (7c).
+ * The red header and the next-race card keep the same red in both themes.
+ */
+:root {
+  color-scheme: light;
+  --page: var(--color-gray-50);
+  --surface: var(--color-white);
+  --sunken: var(--color-gray-100);
+  --track: var(--color-gray-200);
+  --fg: var(--color-gray-900);
+  --fg-soft: var(--color-gray-700);
+  --muted: var(--color-gray-600);
+  --subtle: #626a79;
+  --line: var(--color-gray-200);
+  --line-strong: var(--color-gray-300);
+  --control: var(--color-gray-500);
+  --accent: var(--color-red-700);
+  --accent-strong: var(--color-red-900);
+  --accent-soft: var(--color-red-50);
+  --positive: var(--color-green-700);
+  --focus: var(--color-red-700);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121211;
+  --surface: #1a1a19;
+  --sunken: #232321;
+  --track: #383835;
+  --fg: #f0efec;
+  --fg-soft: #dcdbd5;
+  --muted: #c3c2b7;
+  --subtle: #9d9c95;
+  --line: #2c2c2a;
+  --line-strong: #45443f;
+  --control: #7d7c75;
+  --accent: var(--color-red-400);
+  --accent-strong: var(--color-red-300);
+  --accent-soft: #3a1517;
+  --positive: var(--color-green-400);
+  --focus: var(--color-red-400);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-track: var(--track);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-control: var(--control);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-positive: var(--positive);
+}
+
+/* Visible keyboard focus everywhere; the red header sets `--focus` to white. In the
+   base layer so utilities can still override it (e.g. <main>, focused only by the skip link). */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
 /* "Reduce motion" from the system: CSS transitions (hover effects) become instant. */
 @media (prefers-reduced-motion: reduce) {
   *,

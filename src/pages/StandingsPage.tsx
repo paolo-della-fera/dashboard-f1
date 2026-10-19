@@ -68,23 +68,23 @@ export default function StandingsPage() {
 
       <div id={panelId} role="tabpanel" aria-label={kind === 'drivers' ? 'Piloti' : 'Costruttori'}>
         {!available && (
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-muted">
             La classifica costruttori esiste solo dal {FIRST_CONSTRUCTORS_SEASON}.
           </p>
         )}
 
         {available && standingsQuery.isPending && (
-          <p className="mt-4 text-gray-600">Caricamento della classifica…</p>
+          <p className="mt-4 text-muted">Caricamento della classifica…</p>
         )}
 
         {standingsQuery.isError && (
-          <p role="alert" className="mt-4 text-red-700">
+          <p role="alert" className="mt-4 text-accent">
             {apiErrorMessage(standingsQuery.error)}
           </p>
         )}
 
         {standingsQuery.isSuccess && standings.length === 0 && (
-          <p className="mt-4 text-gray-600">Classifica della stagione {season} non ancora disponibile.</p>
+          <p className="mt-4 text-muted">Classifica della stagione {season} non ancora disponibile.</p>
         )}
 
         {standingsQuery.isSuccess && standings.length > 0 && (
@@ -108,17 +108,17 @@ export default function StandingsPage() {
               </div>
 
               {historyQuery.isPending && (
-                <p className="mt-2 text-gray-600">Caricamento del grafico, una richiesta per gara…</p>
+                <p className="mt-2 text-muted">Caricamento del grafico, una richiesta per gara…</p>
               )}
 
               {historyQuery.isError && (
-                <p role="alert" className="mt-2 text-red-700">
+                <p role="alert" className="mt-2 text-accent">
                   {apiErrorMessage(historyQuery.error)}
                 </p>
               )}
 
               {historyQuery.isSuccess && rows.length === 0 && (
-                <p className="mt-2 text-gray-600">Nessuna gara ancora disputata.</p>
+                <p className="mt-2 text-muted">Nessuna gara ancora disputata.</p>
               )}
 
               {historyQuery.isSuccess && rows.length > 0 && (

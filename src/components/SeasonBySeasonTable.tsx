@@ -10,11 +10,11 @@ interface SeasonBySeasonTableProps {
 
 export default function SeasonBySeasonTable({ name, seasons }: SeasonBySeasonTableProps) {
   return (
-    <details className="rounded-lg border border-gray-200 bg-white p-3">
+    <details className="rounded-lg border border-line bg-surface p-3">
       <summary className="cursor-pointer text-sm font-medium">{name}: stagione per stagione</summary>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-300 text-gray-600">
+          <thead className="border-b border-line-strong text-muted">
             <tr>
               <th scope="col" className="px-2 py-2">Stagione</th>
               <th scope="col" className="px-2 py-2">Team</th>
@@ -28,10 +28,10 @@ export default function SeasonBySeasonTable({ name, seasons }: SeasonBySeasonTab
           </thead>
           <tbody>
             {seasons.map((season, index) => (
-              <motion.tr key={season.season} className="border-b border-gray-200" {...appear(index)}>
+              <motion.tr key={season.season} className="border-b border-line" {...appear(index)}>
                 <td className="px-2 py-2 tabular-nums">
                   {season.season}
-                  {season.provisional && <span className="ml-1 text-xs text-gray-500">(provvisoria)</span>}
+                  {season.provisional && <span className="ml-1 text-xs text-subtle">(provvisoria)</span>}
                 </td>
                 <td className="px-2 py-2">{season.teams.join(' / ') || '—'}</td>
                 <td className="px-2 py-2 text-right tabular-nums">{season.starts}</td>
@@ -47,7 +47,7 @@ export default function SeasonBySeasonTable({ name, seasons }: SeasonBySeasonTab
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-gray-600">
+      <p className="mt-2 text-xs text-muted">
         * Punti ufficiali della stagione, non confrontabili tra epoche diverse. SQ = squalificato dal campionato, NC = non
         classificato.
       </p>

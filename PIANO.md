@@ -14,7 +14,7 @@ Una fase per sessione. Dopo ogni fase: verifica manuale → test e lint → comm
 - [ ] Fase 7 – Rifinitura e pubblicazione
   - [x] 7a – Pulizia del codice e robustezza
   - [x] 7b – Responsive
-  - [ ] 7c – Tema scuro e accessibilità
+  - [x] 7c – Tema scuro e accessibilità
   - [ ] 7d – Revisione finale e pubblicazione
 
 ---
@@ -234,6 +234,32 @@ Divisa in quattro sotto-fasi, una per sessione, ciascuna con il suo commit, nell
 - Revisione accessibilità: contrasto (su entrambi i temi), navigazione da tastiera, etichette dei grafici
 
 **Fatto quando:** tutte le pagine leggibili in tema chiaro e scuro, contrasto almeno AA, tutte le funzioni usabili da tastiera; test e lint passano.
+
+**Come funziona (riepilogo):**
+- *Scelta*: tema di sistema + interruttore Chiaro / Scuro / Sistema nell'intestazione (`src/components/ThemeToggle.tsx`, pulsanti con `aria-pressed`, 44×44px; su telefono accanto al titolo, da `sm` dopo la navigazione). La scelta è salvata in localStorage (`f1-theme`); con "Sistema" il tema segue `prefers-color-scheme` anche quando cambia a pagina aperta.
+- *Stato* (`src/lib/theme.ts` puro + `src/hooks/useTheme.ts`): store esterno con `useSyncExternalStore`, imposta `data-theme` su `<html>`. Uno script inline in `index.html` fa lo stesso prima del primo disegno (niente lampo bianco); stessa regola e stessa chiave di `resolveTheme`, da tenere allineati. localStorage bloccato: si segue il sistema.
+- *Token di colore* (`src/index.css`): variabili CSS per tema + `@theme inline`, quindi i componenti usano `bg-page`, `bg-surface`, `bg-sunken`, `bg-track`, `text-fg`, `text-fg-soft`, `text-muted`, `text-subtle`, `border-line`, `border-line-strong`, `border-control`, `text-accent`, `text-accent-strong`, `bg-accent-soft`, `text-positive`. In chiaro i valori sono quelli di prima, tranne `subtle` (prima gray-400/500, ora `#626a79`) e i bordi dei controlli (gray-500). La variante `dark:` (legata a `data-theme`) serve solo per badge viola del giro veloce, nota ambra sui punti e bordo dell'errore. Intestazione rossa e card "Prossima gara" hanno lo stesso rosso in entrambi i temi.
+- *Contrasto testo (WCAG AA ≥ 4,5:1)*, peggior caso su pagina / superficie / `sunken` / `accent-soft`:
+
+  | Token | Chiaro | Scuro |
+  |---|---|---|
+  | fg | 16,1 | 13,7 |
+  | fg-soft | 9,4 | 11,4 |
+  | muted | 6,9 | 8,8 |
+  | subtle | 4,95 | 5,7 |
+  | accent (link, tab, errori) | 5,8 | 5,5 |
+  | positive (+/− risultati, solo su pagina e superficie) | 4,7 | 9,8 |
+  | etichette assi grafici | 7,2 | 8,8 |
+
+  Bordi dei campi (`control`) ≥ 4,2:1 (≥ 3:1 per i componenti). Testo bianco sul rosso dell'intestazione 6,4:1 (4,8:1 sull'hover).
+- *Grafici* (`src/lib/chartColors.ts`): `SERIES_COLORS_DARK` = le stesse otto tinte, slot per slot, schiarite per il fondo scuro; validate come insieme con lo script della skill dataviz: tutte ≥ 3:1 sul fondo scuro, coppie adiacenti distinguibili con daltonismo (ΔE ≥ 8,4). In chiaro tre serie (acqua, giallo, magenta) restano sotto 3:1 sul fondo: compensato da legenda e tabelle con gli stessi dati. `CHART_CHROME` per griglia, assi, etichette e cursore; `useChartColors()` dà i colori del tema attivo (anche ai due piloti del testa a testa).
+- *Etichette dei grafici*: ogni grafico è un `<figure>` con `aria-label`; le barre del testa a testa elencano tutti i valori, le linee rimandano alla tabella con gli stessi dati. Tooltip su fondo `surface`.
+- *Ombre*: in scuro l'hover delle card statistiche schiarisce il bordo; la card prossima gara ha un anello rosso chiaro.
+- *Tastiera*: focus visibile ovunque (`:focus-visible` in `@layer base`, contorno 2px rosso; bianco nell'intestazione). Link "Vai al contenuto" come primo elemento (porta il focus su `<main>` senza cambiare l'URL). Tab Piloti/Costruttori e Gara/Qualifiche/Sprint con il pattern ARIA completo: solo la tab attiva entra nell'ordine del tasto Tab, frecce ←/→ con giro, Home/Fine (`src/lib/tabs.ts`). Ricerca piloti: l'opzione attiva resta visibile mentre si scorre con le frecce.
+- *Test*: nuovi `theme`, `tabs`, `chartColors`, `ThemeToggle`, `StandingsTabs` (tastiera), `Layout` (link "Vai al contenuto"). Nessun test da tastiera dedicato a `SessionTabs` (stessa logica di `StandingsTabs`, già coperta).
+- *Test instabili risolti* (con permesso, test esistenti): `App.test.tsx > navigates between sections` superava il timeout di 1 s di `findByRole` nella suite completa (830–1320 ms, 360 ms da solo). Misurato: ~750 ms sono l'import a freddo del chunk `StandingsPage` (Recharts) con gli altri file in parallelo, non lo store del tema; ora `timeout: 5000`. `ResultsPage.test.tsx > picks another Grand Prix or season` controllava l'indirizzo prima del redirect: ora `vi.waitFor` (commit separato `9e7118e`). Suite completa 10 su 10 senza fallimenti.
+- *Worktree temporanei*: fare `npm ci` separato, non collegare `node_modules` a quello del progetto (con una giunzione, `git worktree remove --force` lo svuota).
+- *Verifica manuale* (19/10): tutte le pagine + 404 in Chiaro / Scuro / Sistema, a 360px e su desktop, ricarica senza lampo bianco, giro da tastiera, contrasto con DevTools.
 
 ### 7d – Revisione finale e pubblicazione
 - Revisione complessiva del codice
